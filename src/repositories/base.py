@@ -57,7 +57,7 @@ class BaseRepository(Generic[ModelType], ABC):
         )
 
         res = await self._session.execute(query)
-        res = res.fetchall()
+        res = res.fetchone()
 
         return self.__model(**res)
 
