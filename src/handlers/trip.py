@@ -4,8 +4,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from dependency_injector.wiring import Provide, inject
 
 from src.config.injector import Container
-from src.formatters import trip as trip_fmts
-from src.keyboards import trip as trip_keyboards
+from src.formatters.trip import trip_already_started_fmt, trip_base_fmt
+from src.keyboards.trip import trip_base_cb, trip_base_keyboard
 from src.loader import bot, dp
 from src.models import Trip
 from src.services import TripService
@@ -27,20 +27,20 @@ async def start_trip(
             chat_id=message.chat.id,
             is_active=True,
     ):
-        await message.answer(trip_fmts.already_started(), parse_mode='HTML')
+        await message.answer(trip_already_started_fmt(), parse_mode='HTML')
         return
 
     trip = Trip(chat_id=message.chat.id, is_active=True)
     trip = await trip_service.create(trip)
 
     await message.answer(
-        text=trip_fmts.base(trip),
-        reply_markup=trip_keyboards.base(trip),
+        text=trip_base_fmt(trip),
+        reply_markup=trip_base_keyboard(trip),
         parse_mode='HTML',
     )
 
 
-@dp.callback_query_handler(trip_keyboards.cb.filter())
+@dp.callback_query_handler(trip_base_cb.filter())
 async def update_trip_name_start(
         call: types.CallbackQuery,
         callback_data: dict,
@@ -75,8 +75,8 @@ async def update_trip_name_finish(
     trip = await trip_service.update_by_id(state_data['trip_id'], {'name': new_trip_name})
 
     await bot.edit_message_text(
-        text=trip_fmts.base(trip),
-        reply_markup=trip_keyboards.base(trip),
+        text=trip_base_fmt(trip),
+        reply_markup=trip_base_keyboard(trip),
         chat_id=message.chat.id,
         message_id=state_data['message_id'],
         parse_mode='HTML',

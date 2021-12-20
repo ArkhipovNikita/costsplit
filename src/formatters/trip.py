@@ -3,7 +3,7 @@ import aiogram.utils.markdown as fmt
 from src.models import Trip
 
 
-def base(trip: Trip) -> str:
+def trip_base_fmt(trip: Trip) -> str:
     parts = [fmt.text('Путешествие')]
 
     if trip.name:
@@ -14,7 +14,7 @@ def base(trip: Trip) -> str:
     return fmt.text(*parts, sep=' ')
 
 
-def already_started() -> str:
+def trip_already_started_fmt() -> str:
     return fmt.text(
         fmt.text('Вы уже в путешествии 🙌'),
         fmt.text('Для начала нового – завершите текущее.'),
