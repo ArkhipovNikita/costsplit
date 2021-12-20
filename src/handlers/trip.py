@@ -23,7 +23,7 @@ async def start_trip(
         message: types.Message,
         trip_service: TripService = Provide[Container.trip_service],
 ):
-    if await trip_service.get_by(
+    if await trip_service.exists_by(
             chat_id=message.chat.id,
             is_active=True,
     ):
@@ -45,7 +45,6 @@ async def update_trip_name_start(
         call: types.CallbackQuery,
         callback_data: dict,
 ):
-    # TODO: check for trip existing
     await TripUpdate.name.set()
     state = dp.get_current().current_state()
     await state.update_data(trip_id=int(callback_data['id']), message_id=call.message.message_id)
@@ -62,10 +61,18 @@ async def update_trip_name_finish(
         state: FSMContext,
         trip_service: TripService = Provide[Container.trip_service],
 ):
-    # TODO: check for name existing and check length
+    new_trip_name = message.text
+
+    if len(new_trip_name) > 100:
+        await message.answer('Название слишком длинное, максимум 100 символов')
+        return
+    if await trip_service.exists_by(name=new_trip_name):
+        await message.answer('Путешествие с таким названием уже существует')
+        return
+
     state_data = await state.get_data()
 
-    trip = await trip_service.update_by_id(state_data['trip_id'], {'name': message.text})
+    trip = await trip_service.update_by_id(state_data['trip_id'], {'name': new_trip_name})
 
     await bot.edit_message_text(
         text=trip_fmts.base(trip),

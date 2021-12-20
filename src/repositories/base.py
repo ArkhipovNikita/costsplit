@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Any, Dict, Generic, Optional, TypeVar, get_args
 
-from sqlalchemy import select, update
+from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.base import BaseTable
@@ -22,6 +22,15 @@ class BaseRepository(Generic[ModelType], ABC):
 
         query = select(self.__model).filter_by(**kwargs).limit(1)
         res = await self._session.execute(query)
+        res = res.scalars().first()
+
+        return res
+
+    async def exists_by(self, **kwargs) -> bool:
+        """Check an object existing by any fields."""
+        query = select(self.__model).filter_by(**kwargs).limit(1)
+
+        res = await self._session.execute(select(exists(query)))
         res = res.scalars().first()
 
         return res

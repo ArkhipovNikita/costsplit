@@ -16,6 +16,10 @@ class BaseService(Generic[ModelType, ModelRepositoryType], ABC):
         """Get object by any fields if found else None."""
         return await self.__model_repository.get_by(**kwargs)
 
+    async def exists_by(self, **kwargs) -> bool:
+        """Check an object existing by any fields."""
+        return await self.__model_repository.exists_by(**kwargs)
+
     async def create(self, obj: ModelType) -> ModelType:
         """Create an object."""
         return await self.__model_repository.create(obj)
