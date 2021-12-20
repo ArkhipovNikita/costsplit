@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.utils import executor
 
 from src.config.injector import init_container
-from src.handlers import trip
+from src.handlers import common, trip
 from src.loader import dp
 
 
