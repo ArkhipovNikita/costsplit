@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from src.models import BaseTable
 from src.repositories import BaseRepository
@@ -23,6 +23,10 @@ class BaseService(Generic[ModelType, ModelRepositoryType], ABC):
     async def create(self, obj: ModelType) -> ModelType:
         """Create an object."""
         return await self.__model_repository.create(obj)
+
+    async def create_many(self, objs: List[ModelType]) -> List[ModelType]:
+        """Create objects."""
+        return await self.__model_repository.create_many(objs)
 
     async def update(self, obj: ModelType, obj_in: Dict[str, Any]) -> ModelType:
         """Update object and returned it with refreshed fields."""

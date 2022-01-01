@@ -29,6 +29,8 @@ class PostgresSettings(BaseSettings):
 
 class BotSettings(BaseSettings):
     api_token: str
+    api_id: int
+    api_hash: str
 
     class Config:
         env_prefix = 'bot_'

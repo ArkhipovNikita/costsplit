@@ -13,6 +13,8 @@ pydantic = "^1.8.2"
 alembic = "^1.7.5"
 psycopg2-binary = "^2.9.2"
 dependency-injector = "^4.37.0"
+Pyrogram = "^1.2.20"
+aiogram-dialog = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"

@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Dict, Generic, Optional, TypeVar, get_args
+from typing import Any, Dict, Generic, List, Optional, TypeVar, get_args
 
 from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,6 +43,16 @@ class BaseRepository(Generic[ModelType], ABC):
         await self._session.refresh(obj)
 
         return obj
+
+    async def create_many(self, objs: List[ModelType]) -> List[ModelType]:
+        """Create objects."""
+        self._session.add_all(objs)
+        await self._session.flush()
+
+        for obj in objs:
+            await self._session.refresh(obj)
+
+        return objs
 
     async def update(self, obj: ModelType, obj_in: Dict[str, Any]) -> ModelType:
         """Update object and returned it with refreshed fields."""
