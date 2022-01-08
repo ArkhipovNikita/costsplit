@@ -15,6 +15,7 @@ from src.models import Participant
 from src.services import TripService
 from src.services.participant import ParticipantService
 from src.utils.db import transactional
+from src.widgets.keyboards import Multiurl, ZippedColumns
 
 
 class ParticipantAdd(StatesGroup):
@@ -86,10 +87,16 @@ participants_multiselect = Multiselect(
     items='chat_members',
 )
 
+participant_links = Multiurl(
+    Format('🔗'),
+    Format('tg://user?id={item[1]}'),
+    items='chat_members',
+)
+
 participant_adding_dialog = Dialog(
     Window(
         Const('Выберете участников'),
-        Column(participants_multiselect),
+        ZippedColumns(Column(participants_multiselect), Column(participant_links)),
         Button(
             Const('Закончить 👌'),
             id=chosen_participants_widget_id,

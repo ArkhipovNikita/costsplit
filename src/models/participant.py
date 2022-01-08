@@ -6,7 +6,6 @@ from src.models.base import BaseTable
 class Participant(BaseTable):
     __table_args__ = (
         sa.UniqueConstraint('trip_id', 'user_id'),
-        # TODO: unique(trip_id, first_name)
     )
 
     trip_id = sa.Column(sa.Integer, sa.ForeignKey('trip.id', ondelete='CASCADE'), nullable=False)
