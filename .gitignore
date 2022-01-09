@@ -21,6 +21,7 @@ docs.zip
 archive.zip
 .DS_Store
 .env.local
+*.session
 
 # vim temporary files
 *~
