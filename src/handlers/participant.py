@@ -1,4 +1,5 @@
 import operator
+from typing import Any
 
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
@@ -18,7 +19,7 @@ from src.utils.db import transactional
 from src.widgets.keyboards import Multiurl, ZippedColumns
 
 
-class ParticipantAdd(StatesGroup):
+class ManageParticipant(StatesGroup):
     choosing = State()
 
 
@@ -38,42 +39,73 @@ async def get_chat_members(dialog_manager: DialogManager, **kwargs):
     return {'chat_members': chat_members}
 
 
-@dp.message_handler(commands=['add_participant'])
 @inject
-async def add_participant_start(
+async def mark_already_chosen_participants(
+        data: Any,
+        dialog_manager: DialogManager,
+        participant_service: ParticipantService = Provide[Container.participant_service],
+):
+    context = dialog_manager.current_context()
+
+    current_trip_id = context.start_data['current_trip_id']
+    chosen_participants = await participant_service.get_trip_participants_user_ids(current_trip_id)
+
+    chosen_participants = list(map(str, chosen_participants))
+    context.widget_data[chosen_participants_widget_id] = chosen_participants
+
+
+@dp.message_handler(commands=['manage_participants'])
+@inject
+async def manage_participants_start(
         message: Message,
         dialog_manager: DialogManager,
         trip_service: TripService = Provide[Container.trip_service],
 ):
-    if not await trip_service.exists_by(chat_id=message.chat.id, is_active=True):
+    current_trip = await trip_service.get_by(chat_id=message.chat.id, is_active=True)
+
+    if not current_trip:
         await message.answer('Начните путешествие и добавьте участников')
         return
 
-    await dialog_manager.start(ParticipantAdd.choosing, mode=StartMode.RESET_STACK)
+    await dialog_manager.start(
+        state=ManageParticipant.choosing,
+        data={'current_trip_id': current_trip.id},
+        mode=StartMode.RESET_STACK,
+    )
 
 
 @inject
 @transactional
-async def add_participant_finish(
+async def manage_participants_finish(
         call: CallbackQuery,
         button: Button,
         dialog_manager: DialogManager,
-        trip_service: TripService = Provide[Container.trip_service],
         participant_service: ParticipantService = Provide[Container.participant_service],
 ):
     context = dialog_manager.current_context()
-    chosen_participants_ids = context.widget_data[chosen_participants_widget_id]
-    chosen_participants = await telegram_client.get_users(chosen_participants_ids)
+    current_trip_id = context.start_data['current_trip_id']
 
-    current_trip = await trip_service.get_by(chat_id=call.message.chat.id, is_active=True)
+    new_participants = context.widget_data[chosen_participants_widget_id]
+    new_participants = list(map(int, new_participants))
 
-    participants = [
-        Participant(trip_id=current_trip.id, user_id=user.id, first_name=user.first_name)
-        for user in chosen_participants
+    old_participants = await participant_service.get_trip_participants_user_ids(current_trip_id)
+
+    new_participants = set(new_participants)
+    old_participants = set(old_participants)
+
+    participants_to_delete = list(old_participants - new_participants)
+    participants_to_add = list(new_participants - old_participants)
+
+    new_participants = await telegram_client.get_users(participants_to_add)
+    new_participants = [
+        Participant(trip_id=current_trip_id, user_id=user.id, first_name=user.first_name)
+        for user in new_participants
     ]
-    await participant_service.create_many(participants)
 
-    await call.answer('Участники успешно добавлены')
+    await participant_service.delete_from_trip_by_user_ids(current_trip_id, participants_to_delete)
+    await participant_service.create_many(new_participants)
+
+    await call.message.answer('Участиники успешно изменены')
     await dialog_manager.done()
 
 
@@ -93,16 +125,17 @@ participant_links = Multiurl(
     items='chat_members',
 )
 
-participant_adding_dialog = Dialog(
+manage_participants_dialog = Dialog(
     Window(
         Const('Выберете участников'),
         ZippedColumns(Column(participants_multiselect), Column(participant_links)),
         Button(
             Const('Закончить 👌'),
             id=chosen_participants_widget_id,
-            on_click=add_participant_finish
+            on_click=manage_participants_finish
         ),
-        state=ParticipantAdd.choosing,
+        state=ManageParticipant.choosing,
         getter=get_chat_members,
     ),
+    on_start=mark_already_chosen_participants,
 )
