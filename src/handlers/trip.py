@@ -2,7 +2,6 @@ from aiogram import types
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
-from aiogram_dialog.utils import get_chat
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.text import Case, Const, Format
@@ -29,17 +28,19 @@ async def start_trip(
         trip_service: TripService = Provide[Container.trip_service],
 ):
     """Create trip if there is no active trip for current chat."""
-    if await trip_service.exists_by(chat_id=message.chat.id, is_active=True):
+    current_trip = await trip_service.get_active_trip_for_chat(chat_id=message.chat.id)
+
+    if current_trip:
         trip_already_exists = True
     else:
         trip_already_exists = False
 
-        trip = Trip(chat_id=message.chat.id, is_active=True)
-        trip = await trip_service.create(trip)
+        current_trip = Trip(chat_id=message.chat.id, is_active=True)
+        current_trip = await trip_service.create(current_trip)
 
     await dialog_manager.start(
         ManageTrip.base,
-        data={'trip_already_exists': trip_already_exists},
+        data={'current_trip_id': current_trip.id, 'trip_already_exists': trip_already_exists},
         mode=StartMode.RESET_STACK,
     )
 
@@ -59,8 +60,8 @@ async def update_trip_name(
         await message.answer('Название слишком длинное, максимум 100 символов')
         return
 
-    trip = await trip_service.get_active_trip_for_chat(chat_id=message.chat.id)
-    trip = await trip_service.update_by_id(trip.id, {'name': new_trip_name})
+    current_trip_id = dialog_manager.current_context().start_data['current_trip_id']
+    await trip_service.update_by_id(current_trip_id, {'name': new_trip_name})
 
     await dialog_manager.dialog().switch_to(ManageTrip.base)
 
@@ -72,8 +73,8 @@ async def get_data(
         **kwargs,
 ):
     """Get data for current trip."""
-    chat = get_chat(dialog_manager.event)
-    trip = await trip_service.get_active_trip_for_chat(chat_id=chat.id)
+    current_trip_id = dialog_manager.current_context().start_data['current_trip_id']
+    trip = await trip_service.get_by(id=current_trip_id)
 
     return {
         'trip_id': trip.id,
