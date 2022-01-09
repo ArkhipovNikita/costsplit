@@ -25,6 +25,7 @@ class ManageParticipant(StatesGroup):
 
 
 async def get_chat_members(dialog_manager: DialogManager, **kwargs):
+    """Get chat user members."""
     chat = get_chat(dialog_manager.event)
 
     chat_members = await telegram_client.get_chat_members(chat.id, filter=Filters.ALL)
@@ -42,6 +43,7 @@ async def mark_already_chosen_participants(
         dialog_manager: DialogManager,
         participant_service: ParticipantService = Provide[Container.participant_service],
 ):
+    """Mark already chosen participants in the widget."""
     context = dialog_manager.current_context()
 
     current_trip_id = context.start_data['current_trip_id']
@@ -58,6 +60,7 @@ async def manage_participants_start(
         dialog_manager: DialogManager,
         trip_service: TripService = Provide[Container.trip_service],
 ):
+    """Start a process of choosing participants."""
     current_trip = await trip_service.get_by(chat_id=message.chat.id, is_active=True)
 
     if not current_trip:
@@ -79,6 +82,7 @@ async def manage_participants_finish(
         dialog_manager: DialogManager,
         participant_service: ParticipantService = Provide[Container.participant_service],
 ):
+    """Handle chosen participants."""
     context = dialog_manager.current_context()
     current_trip_id = context.start_data['current_trip_id']
 

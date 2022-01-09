@@ -8,6 +8,7 @@ from src.repositories import BaseRepository
 
 class ParticipantRepository(BaseRepository[Participant]):
     async def get_trip_participants_user_ids(self, trip_id: int) -> List[int]:
+        """Get user ids of a trip."""
         query = select(Participant.user_id).filter_by(trip_id=trip_id)
         res = await self._session.execute(query)
         res = res.scalars().all()
@@ -15,6 +16,7 @@ class ParticipantRepository(BaseRepository[Participant]):
         return res
 
     async def delete_from_trip_by_user_ids(self, trip_id: int, user_ids: List[int]) -> int:
+        """Delete participants by user ids from a trip."""
         query = (
             delete(Participant)
             .where(
