@@ -4,6 +4,7 @@ from typing import Any
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
+from aiogram_dialog.utils import get_chat
 from aiogram_dialog.widgets.kbd import Button, Column, Multiselect
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
@@ -24,13 +25,9 @@ class ManageParticipant(StatesGroup):
 
 
 async def get_chat_members(dialog_manager: DialogManager, **kwargs):
-    chat_id = (
-        dialog_manager.event.chat.id
-        if isinstance(dialog_manager.event, Message)
-        else dialog_manager.event.message.chat.id
-    )
+    chat = get_chat(dialog_manager.event)
 
-    chat_members = await telegram_client.get_chat_members(chat_id, filter=Filters.ALL)
+    chat_members = await telegram_client.get_chat_members(chat.id, filter=Filters.ALL)
 
     chat_members = map(lambda u: u.user, chat_members)
     chat_members = filter(lambda u: not u.is_bot, chat_members)
@@ -51,7 +48,7 @@ async def mark_already_chosen_participants(
     chosen_participants = await participant_service.get_trip_participants_user_ids(current_trip_id)
 
     chosen_participants = list(map(str, chosen_participants))
-    context.widget_data[chosen_participants_widget_id] = chosen_participants
+    context.widget_data[CHOOSING_PARTICIPANTS_WIDGET_ID] = chosen_participants
 
 
 @dp.message_handler(commands=['manage_participants'])
@@ -85,7 +82,7 @@ async def manage_participants_finish(
     context = dialog_manager.current_context()
     current_trip_id = context.start_data['current_trip_id']
 
-    new_participants = context.widget_data[chosen_participants_widget_id]
+    new_participants = context.widget_data[CHOOSING_PARTICIPANTS_WIDGET_ID]
     new_participants = list(map(int, new_participants))
 
     old_participants = await participant_service.get_trip_participants_user_ids(current_trip_id)
@@ -109,12 +106,12 @@ async def manage_participants_finish(
     await dialog_manager.done()
 
 
-chosen_participants_widget_id = 'chosen_participants'
+CHOOSING_PARTICIPANTS_WIDGET_ID = 'CHOOSING_PARTICIPANTS'
 
 participants_multiselect = Multiselect(
     Format('{item[0]} ✔'),
     Format('{item[0]}'),
-    id=chosen_participants_widget_id,
+    id=CHOOSING_PARTICIPANTS_WIDGET_ID,
     item_id_getter=operator.itemgetter(1),
     items='chat_members',
 )
@@ -131,7 +128,7 @@ manage_participants_dialog = Dialog(
         ZippedColumns(Column(participants_multiselect), Column(participant_links)),
         Button(
             Const('Закончить 👌'),
-            id=chosen_participants_widget_id,
+            id=CHOOSING_PARTICIPANTS_WIDGET_ID,
             on_click=manage_participants_finish
         ),
         state=ManageParticipant.choosing,

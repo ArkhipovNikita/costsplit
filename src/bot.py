@@ -7,13 +7,13 @@ from src.config.pyrogram import close_telegram_client, init_telegram_client
 from src.handlers.participant import manage_participants_dialog
 from src.loader import dp
 
-registry = DialogRegistry(dp)
-registry.register(manage_participants_dialog)
-
 
 async def on_startup(dp_: Dispatcher):
     init_container()
     await init_telegram_client()
+
+    registry = DialogRegistry(dp_)
+    registry.register(manage_participants_dialog)
 
 
 async def on_shutdown(dp_: Dispatcher):
