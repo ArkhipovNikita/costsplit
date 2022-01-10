@@ -28,7 +28,7 @@ async def start_trip(
         trip_service: TripService = Provide[Container.trip_service],
 ):
     """Create trip if there is no active trip for current chat."""
-    current_trip = await trip_service.get_active_trip_for_chat(chat_id=message.chat.id)
+    current_trip = await trip_service.get_active_trip(chat_id=message.chat.id)
 
     if current_trip:
         trip_already_exists = True
