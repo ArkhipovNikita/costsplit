@@ -61,7 +61,7 @@ async def update_trip_name(
         return
 
     current_trip_id = dialog_manager.current_context().start_data['current_trip_id']
-    await trip_service.update_by_id(current_trip_id, {'name': new_trip_name})
+    await trip_service.update_by_id(current_trip_id, name=new_trip_name)
 
     await dialog_manager.dialog().switch_to(ManageTrip.base)
 

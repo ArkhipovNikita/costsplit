@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Dict, Generic, List, Optional, TypeVar, get_args
+from typing import Generic, List, Optional, TypeVar, get_args
 
 from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -54,10 +54,10 @@ class BaseRepository(Generic[ModelType], ABC):
 
         return objs
 
-    async def update(self, obj: ModelType, obj_in: Dict[str, Any]) -> ModelType:
+    async def update(self, obj: ModelType, **kwargs) -> ModelType:
         """Update object and returned it with refreshed fields."""
 
-        for k, v in obj_in.items():
+        for k, v in kwargs.items():
             setattr(obj, k, v)
 
         self._session.add(obj)
@@ -65,13 +65,13 @@ class BaseRepository(Generic[ModelType], ABC):
 
         return obj
 
-    async def update_by_id(self, obj_id: int, obj_in: Dict[str, Any]) -> ModelType:
+    async def update_by_id(self, obj_id: int, **kwargs) -> ModelType:
         """Update object by id and returned it."""
 
         query = (
             update(self.__model)
             .where(self.__model.id == obj_id)
-            .values(**obj_in)
+            .values(**kwargs)
             .returning(self.__model)
         )
 
