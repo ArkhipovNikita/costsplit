@@ -41,7 +41,7 @@ async def get_created_at_shortcut_options(
 
 @inject
 @transactional
-async def update_expense_created_at(
+async def update_created_at(
         dialog_manager: DialogManager,
         selected_date: Optional[date],
         expense_service: ExpenseService = Provide[Container.expense_service],
@@ -54,17 +54,17 @@ async def update_expense_created_at(
     await dialog_manager.switch_to(ManageExpense.base)
 
 
-async def update_expense_created_at_calendar(
+async def update_created_at_calendar(
         call: CallbackQuery,
         widget,
         dialog_manager: DialogManager,
         selected_date: date,
 ):
     """Update current expense `created_at` field with value got from `Calendar` widget."""
-    await update_expense_created_at(dialog_manager, selected_date)
+    await update_created_at(dialog_manager, selected_date)
 
 
-async def update_expense_created_at_shortcut(
+async def update_created_at_shortcut(
         call: CallbackQuery,
         widget: Any,
         dialog_manager: DialogManager,
@@ -72,10 +72,10 @@ async def update_expense_created_at_shortcut(
 ):
     """Update current expense `created_at` field with value got from shortcuts."""
     selected_date = datetime.strptime(item_id, app_settings.date_format).date() if item_id else None
-    await update_expense_created_at(dialog_manager, selected_date)
+    await update_created_at(dialog_manager, selected_date)
 
 
-manage_created_at_windows = [
+created_at_windows = [
     Window(
         Const('Выберете дату'),
         Row(
@@ -84,7 +84,7 @@ manage_created_at_windows = [
                 id='expense_created_at_shortcut',
                 item_id_getter=operator.itemgetter(1),
                 items='created_at_options',
-                on_click=update_expense_created_at_shortcut,
+                on_click=update_created_at_shortcut,
             ),
             SwitchTo(
                 Const('Больше ➡️'),
@@ -98,7 +98,7 @@ manage_created_at_windows = [
     Window(
         Const('Выберете дату'),
         # TODO: translate to Russian
-        Calendar(id='expense_created_at_calendar', on_click=update_expense_created_at_calendar),
+        Calendar(id='expense_created_at_calendar', on_click=update_created_at_calendar),
         state=ManageExpense.created_at_calendar,
     ),
 ]

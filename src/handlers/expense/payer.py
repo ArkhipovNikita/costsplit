@@ -43,7 +43,7 @@ async def get_trip_participants(
 
 @inject
 @transactional
-async def update_expense_payer(
+async def update_payer(
         call: CallbackQuery,
         widget: Any,
         dialog_manager: DialogManager,
@@ -61,7 +61,7 @@ async def update_expense_payer(
     await dialog_manager.dialog().switch_to(ManageExpense.base)
 
 
-manage_payer_window = Window(
+payer_window = Window(
     Const('Выберете плательщка'),
     Zipped(
         Column(
@@ -71,7 +71,7 @@ manage_payer_window = Window(
                 id=PAYER_CHOOSING_WIDGET_ID,
                 item_id_getter=operator.itemgetter(1),
                 items='participants',
-                on_click=update_expense_payer,
+                on_click=update_payer,
             ),
         ),
         Column(UserMultiurl(user_id_pos=1, items='participants')),

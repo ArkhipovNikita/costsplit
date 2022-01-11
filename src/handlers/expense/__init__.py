@@ -1,17 +1,17 @@
 from aiogram_dialog import Dialog
 
-from src.handlers.expense.amount import manage_amount_window
+from src.handlers.expense.amount import amount_window
 from src.handlers.expense.base import base_window
-from src.handlers.expense.created_at import manage_created_at_windows
-from src.handlers.expense.description import manage_description_window
-from src.handlers.expense.payer import manage_payer_window
+from src.handlers.expense.created_at import created_at_windows
+from src.handlers.expense.description import description_window
+from src.handlers.expense.payer import payer_window
 
-__all__ = ('manage_expense_dialog', )
+__all__ = ('expense_dialog',)
 
-manage_expense_dialog = Dialog(
+expense_dialog = Dialog(
     base_window,
-    manage_amount_window,
-    manage_payer_window,
-    manage_description_window,
-    *manage_created_at_windows,
+    amount_window,
+    payer_window,
+    description_window,
+    *created_at_windows,
 )

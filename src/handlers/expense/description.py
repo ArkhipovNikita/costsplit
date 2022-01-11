@@ -14,7 +14,7 @@ from src.utils.db import transactional
 
 @inject
 @transactional
-async def update_expense_description(
+async def update_description(
         message: Message,
         dialog: Dialog,
         dialog_manager: DialogManager,
@@ -29,8 +29,8 @@ async def update_expense_description(
     await dialog_manager.dialog().switch_to(ManageExpense.base)
 
 
-manage_description_window = Window(
+description_window = Window(
     Const('Введите описание'),
-    MessageInput(update_expense_description),
+    MessageInput(update_description),
     state=ManageExpense.description,
 )

@@ -15,7 +15,7 @@ from src.utils.db import transactional
 
 @inject
 @transactional
-async def update_expense_amount(
+async def update_amount(
         message: Message,
         dialog: Dialog,
         dialog_manager: DialogManager,
@@ -49,8 +49,8 @@ async def update_expense_amount(
     await dialog_manager.dialog().switch_to(ManageExpense.base)
 
 
-manage_amount_window = Window(
+amount_window = Window(
     Const('Введите сумму траты'),
-    MessageInput(update_expense_amount),
+    MessageInput(update_amount),
     state=ManageExpense.amount,
 )
