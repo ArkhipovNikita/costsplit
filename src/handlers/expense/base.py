@@ -63,9 +63,14 @@ base_window = Window(
         state=ManageExpense.payer,
     ),
     SwitchTo(
+        Const('Уточнить описание ✏️'),
+        id='update_expense_description',
+        state=ManageExpense.description,
+    ),
+    SwitchTo(
         Const('Уточнить дату 📅'),
         id='update_expense_created_at',
-        state=ManageExpense.created_at_shortcut
+        state=ManageExpense.created_at_shortcut,
     ),
     state=ManageExpense.base,
     getter=get_expense_data,

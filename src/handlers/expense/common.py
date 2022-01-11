@@ -7,5 +7,6 @@ class ManageExpense(StatesGroup):
     base = State()
     amount = State()
     payer = State()
+    description = State()
     created_at_shortcut = State()
     created_at_calendar = State()
