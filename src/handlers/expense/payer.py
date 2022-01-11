@@ -3,7 +3,7 @@ from typing import Any
 
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager, Window
-from aiogram_dialog.widgets.kbd import Radio
+from aiogram_dialog.widgets.kbd import Column, Radio
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
@@ -12,6 +12,7 @@ from src.handlers.consts import CURRENT_EXPENSE_ID_KEY, CURRENT_TRIP_ID_KEY
 from src.handlers.expense.common import ManageExpense
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
+from src.widgets.keyboards import Multiurl, ZippedColumns
 
 PAYER_CHOOSING_WIDGET_ID = 'expense_payer'
 
@@ -62,13 +63,24 @@ async def update_expense_payer(
 
 manage_payer_window = Window(
     Const('Выберете плательщка'),
-    Radio(
-        Format('{item[0]} ✔️'),
-        Format('{item[0]}'),
-        id=PAYER_CHOOSING_WIDGET_ID,
-        item_id_getter=operator.itemgetter(1),
-        items='participants',
-        on_click=update_expense_payer,
+    ZippedColumns(
+        Column(
+            Radio(
+                Format('{item[0]} ✔️'),
+                Format('{item[0]}'),
+                id=PAYER_CHOOSING_WIDGET_ID,
+                item_id_getter=operator.itemgetter(1),
+                items='participants',
+                on_click=update_expense_payer,
+            ),
+        ),
+        Column(
+            Multiurl(
+                Format('🔗'),
+                Format('tg://user?id={item[1]}'),
+                items='participants',
+            ),
+        ),
     ),
     state=ManageExpense.payer,
     getter=get_trip_participants,
