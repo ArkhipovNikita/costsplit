@@ -36,5 +36,13 @@ class BotSettings(BaseSettings):
         env_prefix = 'bot_'
 
 
+class AppSettings(BaseSettings):
+    date_format: str = '%d-%m-%Y'
+
+    class Config:
+        env_prefix = 'app_'
+
+
 postgres_settings = PostgresSettings()
 bot_settings = BotSettings()
+app_settings = AppSettings()
