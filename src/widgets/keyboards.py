@@ -10,7 +10,7 @@ from aiogram_dialog.widgets.text import Text
 from aiogram_dialog.widgets.when import WhenCondition
 
 
-class ZippedColumns(Group):
+class Zipped(Group):
     """A class to zip several `Column` keyboards into «table»."""
 
     def __init__(self, *buttons: Column, id: Optional[str] = None, when: WhenCondition = None):

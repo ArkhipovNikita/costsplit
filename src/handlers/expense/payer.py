@@ -12,7 +12,7 @@ from src.handlers.consts import CURRENT_EXPENSE_ID_KEY, CURRENT_TRIP_ID_KEY
 from src.handlers.expense.common import ManageExpense
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
-from src.widgets.keyboards import Multiurl, ZippedColumns
+from src.widgets.keyboards import Multiurl, Zipped
 
 PAYER_CHOOSING_WIDGET_ID = 'expense_payer'
 
@@ -63,7 +63,7 @@ async def update_expense_payer(
 
 manage_payer_window = Window(
     Const('Выберете плательщка'),
-    ZippedColumns(
+    Zipped(
         Column(
             Radio(
                 Format('{item[0]} ✔️'),

@@ -17,7 +17,7 @@ from src.models import Participant
 from src.services import TripService
 from src.services.participant import ParticipantService
 from src.utils.db import transactional
-from src.widgets.keyboards import Multiurl, ZippedColumns
+from src.widgets.keyboards import Multiurl, Zipped
 
 
 class ManageParticipant(StatesGroup):
@@ -129,7 +129,7 @@ participant_links = Multiurl(
 manage_participants_dialog = Dialog(
     Window(
         Const('Выберете участников'),
-        ZippedColumns(Column(participants_multiselect), Column(participant_links)),
+        Zipped(Column(participants_multiselect), Column(participant_links)),
         Button(
             Const('Закончить 👌'),
             id=CHOOSING_PARTICIPANTS_WIDGET_ID,
