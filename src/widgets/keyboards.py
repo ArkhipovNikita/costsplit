@@ -6,7 +6,7 @@ from aiogram.types import InlineKeyboardButton
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Column, Group, Keyboard
 from aiogram_dialog.widgets.kbd.select import get_identity
-from aiogram_dialog.widgets.text import Text
+from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.when import WhenCondition
 
 
@@ -71,4 +71,23 @@ class Multiurl(Keyboard):
         return InlineKeyboardButton(
             text=await self.text.render_text(data, manager),
             url=await self.url.render_text(data, manager),
+        )
+
+
+class UserMultiurl(Multiurl):
+    """Class to redner multiple button-link to users."""
+
+    def __init__(
+            self,
+            user_id_pos: int,
+            items: Union[str, Sequence],
+            id: Optional[str] = None,
+            when: Union[str, Callable, None] = None,
+    ):
+        super(UserMultiurl, self).__init__(
+            text=Format('🔗'),
+            url=Format('tg://user?id={item[%s]}' % user_id_pos),
+            items=items,
+            id=id,
+            when=when,
         )
