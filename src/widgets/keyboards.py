@@ -11,7 +11,7 @@ from aiogram_dialog.widgets.when import WhenCondition
 
 
 class Zipped(Group):
-    """A class to zip several `Column` keyboards into «table»."""
+    """Class to zip several `Column` keyboards into «table»."""
 
     def __init__(self, *buttons: Column, id: Optional[str] = None, when: WhenCondition = None):
         super().__init__(*buttons, id=id, when=when, width=len(buttons))
@@ -30,7 +30,7 @@ class Zipped(Group):
 
 
 class Multiurl(Keyboard):
-    """A class to render list of `Url` buttons using data from a getter."""
+    """Class to render list of `Url` buttons using data from a getter."""
 
     def __init__(
             self,
