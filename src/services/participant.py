@@ -10,6 +10,10 @@ class ParticipantService(BaseService[Participant, ParticipantRepository]):
         super().__init__(participant_repository)
         self.participant_repository = participant_repository
 
+    async def get_trip_participants(self, trip_id: int) -> List[Participant]:
+        """Get participants of a trip."""
+        return await self.participant_repository.get_trip_participants(trip_id)
+
     async def get_trip_participants_user_ids(self, trip_id: int) -> List[int]:
         """Get user ids of a trip."""
         return await self.participant_repository.get_trip_participants_user_ids(trip_id)

@@ -6,7 +6,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Calendar, Row, Select, SwitchTo
+from aiogram_dialog.widgets.kbd import Calendar, Radio, Row, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
@@ -23,6 +23,7 @@ from src.utils.handlers import ensure_trip_exists
 class ManageExpense(StatesGroup):
     base = State()
     amount = State()
+    payer = State()
     created_at_shortcut = State()
     created_at_calendar = State()
 
@@ -66,6 +67,30 @@ async def get_created_at_shortcut_options(
     return {
         'created_at_options': created_at_options,
     }
+
+
+@inject
+async def get_trip_participants(
+        dialog_manager: DialogManager,
+        expense_service: ExpenseService = Provide[Container.expense_service],
+        participant_service: ParticipantService = Provide[Container.participant_service],
+        **kwargs,
+):
+    """Get current trip participants and set initial data to a widget."""
+    context = dialog_manager.current_context()
+
+    current_trip_id = context.start_data['current_trip_id']
+    current_expense_id = context.start_data['current_expense_id']
+
+    current_expense = await expense_service.get_by(id=current_expense_id)
+    current_payer = await participant_service.get_by(id=current_expense.payer_id)
+
+    context.widget_data['expense_payer'] = str(current_payer.user_id)
+
+    participants = await participant_service.get_trip_participants(current_trip_id)
+    participants = [(p.first_name, p.user_id) for p in participants]
+
+    return {'participants': participants}
 
 
 @dp.message_handler(commands=['expense'])
@@ -158,13 +183,38 @@ async def update_expense_created_at_shortcut(
     await update_expense_created_at(dialog_manager, selected_date)
 
 
+@inject
+@transactional
+async def update_expense_payer(
+        call: CallbackQuery,
+        widget: Any,
+        dialog_manager: DialogManager,
+        item_id: str,
+        expense_service: ExpenseService = Provide[Container.expense_service],
+        participant_service: ParticipantService = Provide[Container.participant_service],
+):
+    """Update current expense `payer_id` field."""
+    item_id = int(item_id)
+    current_expense_id = dialog_manager.current_context().start_data['current_expense_id']
+
+    participant = await participant_service.get_by(user_id=item_id)
+    await expense_service.update_by_id(current_expense_id, payer_id=participant.id)
+
+    await dialog_manager.dialog().switch_to(ManageExpense.base)
+
+
 manage_expense_dialog = Dialog(
     Window(
         Format('Трата: amount={amount}|created_at={created_at}|payer={payer}'),
         SwitchTo(
-            Const('Уточнить сумму 💵'),
+            Const('Уточнить сумму 💸'),
             id='update_expense_amount',
             state=ManageExpense.amount,
+        ),
+        SwitchTo(
+            Const('Уточнить плательщика 💳'),
+            id='update_expense_payer',
+            state=ManageExpense.payer,
         ),
         SwitchTo(
             Const('Уточнить дату 📅'),
@@ -178,6 +228,19 @@ manage_expense_dialog = Dialog(
         Const('Введите сумму траты'),
         MessageInput(update_expense_amount),
         state=ManageExpense.amount,
+    ),
+    Window(
+        Const('Выберете плательщка'),
+        Radio(
+            Format('{item[0]} ✔️'),
+            Format('{item[0]}'),
+            id='expense_payer',
+            item_id_getter=operator.itemgetter(1),
+            items='participants',
+            on_click=update_expense_payer,
+        ),
+        state=ManageExpense.payer,
+        getter=get_trip_participants,
     ),
     Window(
         Const('Выберете дату'),

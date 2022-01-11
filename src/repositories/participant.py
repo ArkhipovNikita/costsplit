@@ -7,6 +7,14 @@ from src.repositories import BaseRepository
 
 
 class ParticipantRepository(BaseRepository[Participant]):
+    async def get_trip_participants(self, trip_id: int) -> List[Participant]:
+        """Get participants of a trip."""
+        query = select(Participant).filter_by(trip_id=trip_id)
+        res = await self._session.execute(query)
+        res = res.scalars().all()
+
+        return res
+
     async def get_trip_participants_user_ids(self, trip_id: int) -> List[int]:
         """Get user ids of a trip."""
         query = select(Participant.user_id).filter_by(trip_id=trip_id)
