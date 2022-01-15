@@ -55,7 +55,6 @@ async def init_parts_amounts_data(
 
     parts_participants = [
         {
-            'id': p.id,
             'user_id': p.user_id,
             'first_name': p.first_name,
             'amount': None,
@@ -97,7 +96,13 @@ async def update_expense_parts(
     parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
 
     parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
-    parts_amounts = [{p['id']: p['amount']} for p in parts_participants]
+    parts_amounts = [
+        {
+            'participant_user_id': p['user_id'],
+            'amount': p['amount'],
+        }
+        for p in parts_participants
+    ]
 
     await expense_service.update_by_id(current_expense_id, parts=parts_amounts)
 
