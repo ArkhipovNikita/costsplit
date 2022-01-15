@@ -16,11 +16,11 @@ from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
 from src.widgets.keyboards import UserMultiurl, Zipped
 
-PARTICIPANTS_CHOOSING_WIDGET_ID = 'expense_parts_participants'
-AMOUNTS_WIDGET_ID = 'expense_parts_amounts'
+PARTS_PARTICIPANTS_CHOOSING_WIDGET_ID = 'expense_parts_participants'
+PARTS_AMOUNTS_WIDGET_ID = 'expense_parts_amounts'
 
-CURRENT_PARTICIPANT_IDX_KEY = 'current_participant_idx'
-CHOSEN_PARTICIPANTS_KEY = 'participants'
+PARTS_PARTICIPANTS_KEY = 'part_participants'
+CURRENT_PART_PARTICIPANT_IDX_KEY = 'current_part_participant_idx'
 
 
 @inject
@@ -45,42 +45,43 @@ async def init_parts_amounts_data(
         participant_service: ParticipantService = Provide[Container.participant_service],
 ):
     """Set initial context data for parts amounts widget (step)."""
-    chosen_participants_user_ids = context.widget_data[PARTICIPANTS_CHOOSING_WIDGET_ID]
-    chosen_participants_user_ids = list(map(int, chosen_participants_user_ids))
+    part_participants_user_ids = context.widget_data[PARTS_PARTICIPANTS_CHOOSING_WIDGET_ID]
+    part_participants_user_ids = list(map(int, part_participants_user_ids))
 
-    chosen_participants = await participant_service.get_participants_by_user_ids(
-        chosen_participants_user_ids,
+    parts_participants = await participant_service.get_participants_by_user_ids(
+        part_participants_user_ids,
     )
 
-    chosen_participants = [
+    parts_participants = [
         {
             'id': p.id,
             'user_id': p.user_id,
             'first_name': p.first_name,
             'amount': None,
         }
-        for p in chosen_participants
+        for p in parts_participants
     ]
 
-    context.widget_data[AMOUNTS_WIDGET_ID] = {
-        CURRENT_PARTICIPANT_IDX_KEY: 0,
-        CHOSEN_PARTICIPANTS_KEY: chosen_participants,
+    context.widget_data[PARTS_AMOUNTS_WIDGET_ID] = {
+        CURRENT_PART_PARTICIPANT_IDX_KEY: 0,
+        PARTS_PARTICIPANTS_KEY: parts_participants,
     }
 
 
-async def get_part_participant_data(dialog_manager: DialogManager, **kwargs):
-    """Get data about current part participant."""
+async def get_parts_amounts_data(dialog_manager: DialogManager, **kwargs):
+    """Get data about participants amounts."""
     context = dialog_manager.current_context()
-    parts_amounts_data = context.widget_data.get(AMOUNTS_WIDGET_ID)
+    parts_amounts_data = context.widget_data.get(PARTS_AMOUNTS_WIDGET_ID)
 
     if not parts_amounts_data:
         await init_parts_amounts_data(context)
-        parts_amounts_data = context.widget_data[AMOUNTS_WIDGET_ID]
+        parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
 
-    current_participant_idx = parts_amounts_data[CURRENT_PARTICIPANT_IDX_KEY]
-    current_participant_data = parts_amounts_data[CHOSEN_PARTICIPANTS_KEY][current_participant_idx]
+    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
+    current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY]
+    current_part_participant_data = parts_participants[current_part_participant_idx]
 
-    return current_participant_data
+    return current_part_participant_data
 
 
 @inject
@@ -95,19 +96,19 @@ async def handle_part_amount(
     expense_in = ExpenseManualIn(part_amount=message.text)
 
     context = dialog_manager.current_context()
-    parts_amounts_data = context.widget_data[AMOUNTS_WIDGET_ID]
+    parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
 
-    participants = parts_amounts_data[CHOSEN_PARTICIPANTS_KEY]
-    current_participant_idx = parts_amounts_data[CURRENT_PARTICIPANT_IDX_KEY]
-    current_participant_data = participants[current_participant_idx]
+    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
+    current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY]
+    current_part_participant_data = parts_participants[current_part_participant_idx]
 
-    current_participant_data['amount'] = expense_in.part_amount
-    current_participant_idx += 1
+    current_part_participant_data['amount'] = expense_in.part_amount
+    current_part_participant_idx += 1
 
-    parts_amounts_data[CURRENT_PARTICIPANT_IDX_KEY] = current_participant_idx
+    parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY] = current_part_participant_idx
 
-    if len(participants) == current_participant_idx:
-        participants_amounts = [{p['id']: p['amount']} for p in participants]
+    if len(parts_participants) == current_part_participant_idx:
+        participants_amounts = [{p['id']: p['amount']} for p in parts_participants]
         current_expense_id = context.start_data[CURRENT_EXPENSE_ID_KEY]
         await expense_service.update_by_id(current_expense_id, parts=participants_amounts)
 
@@ -122,7 +123,7 @@ parts_windows = [
                 Multiselect(
                     Format('{item[1]} ✔️'),
                     Format('{item[1]}'),
-                    id=PARTICIPANTS_CHOOSING_WIDGET_ID,
+                    id=PARTS_PARTICIPANTS_CHOOSING_WIDGET_ID,
                     item_id_getter=operator.itemgetter(0),
                     items='participants',
                 ),
@@ -142,6 +143,6 @@ parts_windows = [
         Format('Введите сумм для {first_name}, '),
         MessageInput(handle_part_amount),
         state=ManageExpense.parts_amounts,
-        getter=get_part_participant_data,
+        getter=get_parts_amounts_data,
     ),
 ]
