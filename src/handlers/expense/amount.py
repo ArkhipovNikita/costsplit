@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.text import Const
 from dependency_injector.wiring import Provide, inject
 
 from src.config.injector import Container
-from src.handlers.consts import CURRENT_EXPENSE_ID_KEY, CURRENT_TRIP_ID_KEY
+from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.models import Expense
 from src.schemes.expense import ExpenseManualIn
@@ -26,12 +26,12 @@ async def update_amount(
     expense_in = ExpenseManualIn(amount=message.text)
 
     context = dialog_manager.current_context()
-    current_expense_id = context.start_data.get(CURRENT_EXPENSE_ID_KEY)
+    current_expense_id = context.start_data.get(CURRENT_EXPENSE_ID)
 
     if current_expense_id:
         await expense_service.update_by_id(current_expense_id, amount=expense_in.amount)
     else:
-        current_trip_id = context.start_data[CURRENT_TRIP_ID_KEY]
+        current_trip_id = context.start_data[CURRENT_TRIP_ID]
         participant = await participant_service.get_by(
             trip_id=current_trip_id,
             user_id=message.from_user.id,
@@ -44,7 +44,7 @@ async def update_amount(
         )
         await expense_service.create(expense)
 
-        context.start_data[CURRENT_EXPENSE_ID_KEY] = expense.id
+        context.start_data[CURRENT_EXPENSE_ID] = expense.id
 
     await dialog_manager.dialog().switch_to(ManageExpense.base)
 

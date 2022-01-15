@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 
 from src.config import app_settings
 from src.config.injector import Container
-from src.handlers.consts import CURRENT_EXPENSE_ID_KEY, CURRENT_TRIP_ID_KEY
+from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.loader import dp
 from src.services import ExpenseService, ParticipantService, TripService
@@ -26,7 +26,7 @@ async def manage_expense_start(
 
     await dialog_manager.start(
         state=ManageExpense.amount,
-        data={CURRENT_TRIP_ID_KEY: trip.id},
+        data={CURRENT_TRIP_ID: trip.id},
         mode=StartMode.RESET_STACK,
     )
 
@@ -39,7 +39,7 @@ async def get_expense_data(
         **kwargs
 ):
     """Get expense data."""
-    current_expense_id = dialog_manager.current_context().start_data.get(CURRENT_EXPENSE_ID_KEY)
+    current_expense_id = dialog_manager.current_context().start_data.get(CURRENT_EXPENSE_ID)
     current_expense = await expense_service.get_by(id=current_expense_id)
     payer = await participant_service.get_by(id=current_expense.payer_id)
 

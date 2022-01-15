@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.text import Const
 from dependency_injector.wiring import Provide, inject
 
 from src.config.injector import Container
-from src.handlers.consts import CURRENT_EXPENSE_ID_KEY
+from src.handlers.consts import CURRENT_EXPENSE_ID
 from src.handlers.expense.common import ManageExpense
 from src.schemes.expense import ExpenseManualIn
 from src.services import ExpenseService
@@ -23,7 +23,7 @@ async def update_description(
     """Validate entered description and update current expense with its value."""
     expense_in = ExpenseManualIn(description=message.text)
 
-    current_expense_id = dialog_manager.current_context().start_data[CURRENT_EXPENSE_ID_KEY]
+    current_expense_id = dialog_manager.current_context().start_data[CURRENT_EXPENSE_ID]
     await expense_service.update_by_id(current_expense_id, description=expense_in.description)
 
     await dialog_manager.dialog().switch_to(ManageExpense.base)

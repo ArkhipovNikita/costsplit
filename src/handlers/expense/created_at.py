@@ -10,7 +10,7 @@ from dependency_injector.wiring import Provide, inject
 
 from src.config import app_settings
 from src.config.injector import Container
-from src.handlers.consts import CURRENT_EXPENSE_ID_KEY
+from src.handlers.consts import CURRENT_EXPENSE_ID
 from src.handlers.expense.common import ManageExpense
 from src.services import ExpenseService
 from src.utils.db import transactional
@@ -23,7 +23,7 @@ async def get_created_at_shortcut_options(
         **kwargs,
 ):
     """Get shortcut options for `created_at` field."""
-    current_expense_id = dialog_manager.current_context().start_data.get(CURRENT_EXPENSE_ID_KEY)
+    current_expense_id = dialog_manager.current_context().start_data.get(CURRENT_EXPENSE_ID)
     expense = await expense_service.get_by(id=current_expense_id)
 
     created_at_options = []
@@ -48,7 +48,7 @@ async def update_created_at(
 ):
     """Update current expense `created_at` field."""
     context = dialog_manager.current_context()
-    current_expense_id = context.start_data.get(CURRENT_EXPENSE_ID_KEY)
+    current_expense_id = context.start_data.get(CURRENT_EXPENSE_ID)
 
     await expense_service.update_by_id(current_expense_id, created_at=selected_date)
     await dialog_manager.switch_to(ManageExpense.base)

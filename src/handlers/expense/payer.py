@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
 from src.config.injector import Container
-from src.handlers.consts import CURRENT_EXPENSE_ID_KEY, CURRENT_TRIP_ID_KEY
+from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
@@ -27,8 +27,8 @@ async def get_trip_participants(
     """Get current trip participants and set initial data to a widget."""
     context = dialog_manager.current_context()
 
-    current_trip_id = context.start_data[CURRENT_TRIP_ID_KEY]
-    current_expense_id = context.start_data[CURRENT_EXPENSE_ID_KEY]
+    current_trip_id = context.start_data[CURRENT_TRIP_ID]
+    current_expense_id = context.start_data[CURRENT_EXPENSE_ID]
 
     current_expense = await expense_service.get_by(id=current_expense_id)
     current_payer = await participant_service.get_by(id=current_expense.payer_id)
@@ -53,7 +53,7 @@ async def update_payer(
 ):
     """Update current expense `payer_id` field."""
     item_id = int(item_id)
-    current_expense_id = dialog_manager.current_context().start_data[CURRENT_EXPENSE_ID_KEY]
+    current_expense_id = dialog_manager.current_context().start_data[CURRENT_EXPENSE_ID]
 
     participant = await participant_service.get_by(user_id=item_id)
     await expense_service.update_by_id(current_expense_id, payer_id=participant.id)

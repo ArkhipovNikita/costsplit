@@ -1,5 +1,4 @@
 import operator
-from typing import Dict, Union
 
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, Window
@@ -10,7 +9,7 @@ from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
 from src.config.injector import Container
-from src.handlers.consts import CURRENT_EXPENSE_ID_KEY, CURRENT_TRIP_ID_KEY
+from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.schemes.expense import ExpenseManualIn
 from src.services import ExpenseService, ParticipantService
@@ -20,8 +19,8 @@ from src.widgets.keyboards import UserMultiurl, Zipped
 PARTS_PARTICIPANTS_CHOOSING_WIDGET_ID = 'expense_parts_participants'
 PARTS_AMOUNTS_WIDGET_ID = 'expense_parts_amounts'
 
-PARTS_PARTICIPANTS_KEY = 'part_participants'
-CURRENT_PART_PARTICIPANT_IDX_KEY = 'current_part_participant_idx'
+PARTS_PARTICIPANTS = 'part_participants'
+CURRENT_PART_PARTICIPANT_IDX = 'current_part_participant_idx'
 
 
 @inject
@@ -32,7 +31,7 @@ async def get_trip_participants_data(
 ):
     """Get current trip participants."""
     context = dialog_manager.current_context()
-    current_trip_id = context.start_data[CURRENT_TRIP_ID_KEY]
+    current_trip_id = context.start_data[CURRENT_TRIP_ID]
 
     participants = await participant_service.get_trip_participants(current_trip_id)
     participants = {p.user_id: p.first_name for p in participants}
@@ -63,8 +62,8 @@ async def init_parts_amounts_data(
     ]
 
     context.widget_data[PARTS_AMOUNTS_WIDGET_ID] = {
-        CURRENT_PART_PARTICIPANT_IDX_KEY: 0,
-        PARTS_PARTICIPANTS_KEY: parts_participants,
+        CURRENT_PART_PARTICIPANT_IDX: 0,
+        PARTS_PARTICIPANTS: parts_participants,
     }
 
 
@@ -77,8 +76,8 @@ async def get_parts_amounts_data(dialog_manager: DialogManager, **kwargs):
         await init_parts_amounts_data(context)
         parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
 
-    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
-    current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY]
+    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS]
+    current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX]
     current_part_participant_data = parts_participants[current_part_participant_idx]
 
     return current_part_participant_data
@@ -92,10 +91,10 @@ async def update_expense_parts(
 ):
     """Update current expense `parts` field."""
     context = dialog_manager.current_context()
-    current_expense_id = context.start_data[CURRENT_EXPENSE_ID_KEY]
+    current_expense_id = context.start_data[CURRENT_EXPENSE_ID]
     parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
 
-    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
+    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS]
     parts_amounts = [
         {
             'participant_user_id': p['user_id'],
@@ -118,14 +117,14 @@ async def handle_part_amount(
     context = dialog_manager.current_context()
     parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
 
-    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
-    current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY]
+    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS]
+    current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX]
     current_part_participant_data = parts_participants[current_part_participant_idx]
 
     current_part_participant_data['amount'] = expense_in.part_amount
     current_part_participant_idx += 1
 
-    parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY] = current_part_participant_idx
+    parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX] = current_part_participant_idx
 
     if len(parts_participants) == current_part_participant_idx:
         await update_expense_parts(dialog_manager)
