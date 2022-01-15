@@ -63,6 +63,11 @@ base_window = Window(
         state=ManageExpense.payer,
     ),
     SwitchTo(
+      Const('Уточнить доли 🤝'),
+      id='update_expense_parts',
+      state=ManageExpense.parts_participants,
+    ),
+    SwitchTo(
         Const('Уточнить описание ✏️'),
         id='update_expense_description',
         state=ManageExpense.description,

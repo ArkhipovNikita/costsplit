@@ -4,8 +4,11 @@ from pydantic import BaseModel, Field, PositiveFloat
 
 
 class ExpenseManualIn(BaseModel):
+    """Model to validate manual entered fields."""
+
     amount: Optional[PositiveFloat]
     description: Optional[str] = Field(max_length=255)
+    part_amount: Optional[PositiveFloat]
 
     class Config:
         error_msg_templates = {

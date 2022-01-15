@@ -23,6 +23,14 @@ class ParticipantRepository(BaseRepository[Participant]):
 
         return res
 
+    async def get_participants_by_user_ids(self, user_ids: List[int]) -> List[Participant]:
+        """Get participants by user ids."""
+        query = select(Participant).where(Participant.user_id.in_(user_ids))
+        res = await self._session.execute(query)
+        res = res.scalars().all()
+
+        return res
+
     async def delete_from_trip_by_user_ids(self, trip_id: int, user_ids: List[int]) -> int:
         """Delete participants by user ids from a trip."""
         query = (
