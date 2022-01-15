@@ -1,4 +1,5 @@
 import operator
+from typing import Dict, Union
 
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, Window
@@ -86,11 +87,25 @@ async def get_parts_amounts_data(dialog_manager: DialogManager, **kwargs):
 
 @inject
 @transactional
+async def update_expense_parts(
+        dialog_manager: DialogManager,
+        expense_service: ExpenseService = Provide[Container.expense_service],
+):
+    """Update current expense `parts` field."""
+    context = dialog_manager.current_context()
+    current_expense_id = context.start_data[CURRENT_EXPENSE_ID_KEY]
+    parts_amounts_data = context.widget_data[PARTS_AMOUNTS_WIDGET_ID]
+
+    parts_participants = parts_amounts_data[PARTS_PARTICIPANTS_KEY]
+    parts_amounts = [{p['id']: p['amount']} for p in parts_participants]
+
+    await expense_service.update_by_id(current_expense_id, parts=parts_amounts)
+
+
 async def handle_part_amount(
         message: Message,
         dialog: Dialog,
         dialog_manager: DialogManager,
-        expense_service: ExpenseService = Provide[Container.expense_service],
 ):
     """Validate input amount and save it."""
     expense_in = ExpenseManualIn(part_amount=message.text)
@@ -108,10 +123,7 @@ async def handle_part_amount(
     parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX_KEY] = current_part_participant_idx
 
     if len(parts_participants) == current_part_participant_idx:
-        participants_amounts = [{p['id']: p['amount']} for p in parts_participants]
-        current_expense_id = context.start_data[CURRENT_EXPENSE_ID_KEY]
-        await expense_service.update_by_id(current_expense_id, parts=participants_amounts)
-
+        await update_expense_parts(dialog_manager)
         await dialog_manager.switch_to(ManageExpense.base)
 
 
