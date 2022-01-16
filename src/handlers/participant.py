@@ -17,7 +17,7 @@ from src.models import Participant
 from src.services import TripService
 from src.services.participant import ParticipantService
 from src.utils.db import transactional
-from src.widgets.keyboards import UserMultiurl, Zipped
+from src.widgets.keyboards import ListUserURL, Zipped
 
 
 class ManageParticipant(StatesGroup):
@@ -120,7 +120,7 @@ participants_multiselect = Multiselect(
     items='chat_members',
 )
 
-participant_links = UserMultiurl(user_id_pos=1, items='chat_members')
+participant_links = ListUserURL(user_id_getter=operator.itemgetter(1), items='chat_members')
 
 manage_participants_dialog = Dialog(
     Window(

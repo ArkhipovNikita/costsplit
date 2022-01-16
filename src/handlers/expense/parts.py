@@ -15,7 +15,7 @@ from src.handlers.expense.common import ManageExpense
 from src.schemes.expense import ExpenseManualIn
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
-from src.widgets.keyboards import UserMultiurl, Zipped
+from src.widgets.keyboards import ListUserURL, Zipped
 from src.widgets.texts import Callable
 
 PARTICIPANTS_CHOOSING_WIDGET_ID = 'expense_parts_participants'
@@ -173,7 +173,7 @@ parts_windows = [
                     items='participants',
                 ),
             ),
-            Column(UserMultiurl(user_id_pos=1, items='participants')),
+            Column(ListUserURL(user_id_getter=operator.itemgetter(1), items='participants')),
         ),
         SwitchTo(
             Const(fmt.consts.CHOOSE),

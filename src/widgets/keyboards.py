@@ -1,13 +1,18 @@
 import itertools
 import operator
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any
+from typing import Callable as CallableType
+from typing import Dict, List, Optional, Sequence, Union
 
 from aiogram.types import InlineKeyboardButton
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Column, Group, Keyboard
-from aiogram_dialog.widgets.kbd.select import get_identity
+from aiogram_dialog.widgets.kbd.select import ItemIdGetter, get_identity
 from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.when import WhenCondition
+
+from src import formatters as fmt
+from src.widgets.texts import Callable
 
 
 class Zipped(Group):
@@ -29,8 +34,8 @@ class Zipped(Group):
         return zipped_keyboard
 
 
-class Multiurl(Keyboard):
-    """Class to render list of `Url` buttons using data from a getter."""
+class ListURL(Keyboard):
+    """Class to render list of link buttons."""
 
     def __init__(
             self,
@@ -38,7 +43,7 @@ class Multiurl(Keyboard):
             url: Text,
             items: Union[str, Sequence],
             id: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            when: Union[str, CallableType, None] = None,
     ):
         super().__init__(id, when)
 
@@ -74,19 +79,27 @@ class Multiurl(Keyboard):
         )
 
 
-class UserMultiurl(Multiurl):
-    """Class to redner multiple button-link to users."""
+class ListUserURL(ListURL):
+    """Class to render list of link buttons to users."""
 
     def __init__(
             self,
-            user_id_pos: int,
+            user_id_getter: ItemIdGetter,
             items: Union[str, Sequence],
+            text: Optional[str] = None,
             id: Optional[str] = None,
-            when: Union[str, Callable, None] = None,
+            when: Union[str, CallableType, None] = None,
     ):
-        super(UserMultiurl, self).__init__(
-            text=Format('🔗'),
-            url=Format('tg://user?id={item[%s]}' % user_id_pos),
+        text = text or Format(fmt.consts.LINK_SYMBOL)
+        url = Callable(
+            lambda data, item, pos, pos0: fmt.common.telegram_user_url(
+                user_id_getter(item)
+            )
+        )
+
+        super().__init__(
+            text=text,
+            url=url,
             items=items,
             id=id,
             when=when,

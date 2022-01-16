@@ -12,7 +12,7 @@ from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
-from src.widgets.keyboards import UserMultiurl, Zipped
+from src.widgets.keyboards import ListUserURL, Zipped
 
 PAYER_CHOOSING_WIDGET_ID = 'expense_payer'
 
@@ -74,7 +74,7 @@ payer_window = Window(
                 on_click=update_payer,
             ),
         ),
-        Column(UserMultiurl(user_id_pos=1, items='participants')),
+        Column(ListUserURL(user_id_getter=operator.itemgetter(1), items='participants')),
     ),
     state=ManageExpense.payer,
     getter=get_trip_participants,
