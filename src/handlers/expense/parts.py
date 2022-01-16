@@ -8,8 +8,8 @@ from aiogram_dialog.widgets.kbd import Button, Column, Multiselect, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, Multi
 from dependency_injector.wiring import Provide, inject
 
+from src import formatters as fmt
 from src.config.injector import Container
-from src.formatters import parts as parts_fmt
 from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.schemes.expense import ExpenseManualIn
@@ -176,7 +176,7 @@ parts_windows = [
             Column(UserMultiurl(user_id_pos=1, items='participants')),
         ),
         SwitchTo(
-            Const('Выбрать 👌'),
+            Const(fmt.consts.CHOOSE),
             id='finish_choosing_expense_parts_participants',
             state=ManageExpense.parts_amounts,
         ),
@@ -184,20 +184,20 @@ parts_windows = [
         state=ManageExpense.parts_participants,
     ),
     Window(
-        Callable(parts_fmt.amount_enter),
+        Callable(fmt.parts.amount_enter),
         Multi(
             Const(' '),
-            Callable(parts_fmt.amounts_already_entered),
+            Callable(fmt.parts.amounts_already_entered),
             when=lambda data, w, m: data['meta'][LAST_COMPLETED_PARTICIPANT_IDX] >= 0,
         ),
         Button(
-            Const('⬅️ Назад'),
+            Const(fmt.consts.BACK),
             id='go_to_previous_participant',
             on_click=set_previous_participant,
             when=lambda data, w, m: data['meta'][CURRENT_PARTICIPANT_IDX] > 0,
         ),
         Button(
-            Const('Вперед ➡️'),
+            Const(fmt.consts.FORWARD),
             id='go_to_next_participant',
             on_click=set_next_participant,
             when=lambda data, w, m: (
