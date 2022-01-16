@@ -1,10 +1,10 @@
 import operator
 
-from aiogram.types import Message, ParseMode
+from aiogram.types import CallbackQuery, Message, ParseMode
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.context.context import Context
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Column, Multiselect, SwitchTo
+from aiogram_dialog.widgets.kbd import Button, Column, Multiselect, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, Multi
 from dependency_injector.wiring import Provide, inject
 
@@ -91,6 +91,7 @@ async def get_parts_amounts_data(dialog_manager: DialogManager, **kwargs):
         'part_participant': current_part_participant_data,
         'part_amounts': completed_part_participants,
         'meta': {
+            CURRENT_PART_PARTICIPANT_IDX: current_part_participant_idx,
             LAST_COMPLETED_PART_PARTICIPANT_IDX: last_completed_part_participant_idx,
         },
     }
@@ -134,15 +135,34 @@ async def handle_part_amount(
     current_part_participant_idx = parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX]
     current_part_participant_data = parts_participants[current_part_participant_idx]
 
+    last_completed_part_participant_idx = parts_amounts_data[LAST_COMPLETED_PART_PARTICIPANT_IDX]
+    parts_amounts_data[LAST_COMPLETED_PART_PARTICIPANT_IDX] = max(
+        last_completed_part_participant_idx, current_part_participant_idx)
+
     current_part_participant_data['amount'] = expense_in.part_amount
     current_part_participant_idx += 1
 
     parts_amounts_data[CURRENT_PART_PARTICIPANT_IDX] = current_part_participant_idx
-    parts_amounts_data[LAST_COMPLETED_PART_PARTICIPANT_IDX] += 1
 
     if len(parts_participants) == current_part_participant_idx:
         await update_expense_parts(dialog_manager)
         await dialog_manager.switch_to(ManageExpense.base)
+
+
+async def set_previous_part_participant(
+        call: CallbackQuery,
+        button: Button,
+        manager: DialogManager,
+):
+    """Set `CURRENT_PART_PARTICIPANT_IDX` to previous part participant."""
+    context = manager.current_context()
+    context.widget_data[PARTS_AMOUNTS_WIDGET_ID][CURRENT_PART_PARTICIPANT_IDX] -= 1
+
+
+async def set_next_part_participant(call: CallbackQuery, button: Button, manager: DialogManager):
+    """Set `CURRENT_PART_PARTICIPANT_IDX` to next part participant."""
+    context = manager.current_context()
+    context.widget_data[PARTS_AMOUNTS_WIDGET_ID][CURRENT_PART_PARTICIPANT_IDX] += 1
 
 
 parts_windows = [
@@ -174,6 +194,19 @@ parts_windows = [
             Const(' '),
             Callable(parts_fmt.amounts_already_entered),
             when=lambda data, w, m: data['meta'][LAST_COMPLETED_PART_PARTICIPANT_IDX] >= 0,
+        ),
+        Button(
+            Const('⬅️ Назад'),
+            id='go_to_previous_part_participant',
+            on_click=set_previous_part_participant,
+            when=lambda data, w, m: data['meta'][CURRENT_PART_PARTICIPANT_IDX] > 0,
+        ),
+        Button(
+            Const('Вперед ➡️'),
+            id='go_to_next_part_participant',
+            on_click=set_next_part_participant,
+            when=lambda data, w, m: data['meta'][LAST_COMPLETED_PART_PARTICIPANT_IDX] >
+                                    data['meta'][CURRENT_PART_PARTICIPANT_IDX],
         ),
         MessageInput(handle_part_amount),
         state=ManageExpense.parts_amounts,
