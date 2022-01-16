@@ -135,9 +135,10 @@ async def handle_amount(
     current_participant_idx = amounts_data[CURRENT_PARTICIPANT_IDX]
     current_participant_data = participants[current_participant_idx]
 
-    last_completed_participant_idx = amounts_data[LAST_COMPLETED_PARTICIPANT_IDX]
     amounts_data[LAST_COMPLETED_PARTICIPANT_IDX] = max(
-        last_completed_participant_idx, current_participant_idx)
+        amounts_data[LAST_COMPLETED_PARTICIPANT_IDX],
+        current_participant_idx,
+    )
 
     current_participant_data['amount'] = expense_in.part_amount
     current_participant_idx += 1
@@ -199,8 +200,10 @@ parts_windows = [
             Const('Вперед ➡️'),
             id='go_to_next_participant',
             on_click=set_next_participant,
-            when=lambda data, w, m: data['meta'][LAST_COMPLETED_PARTICIPANT_IDX] >
-                                    data['meta'][CURRENT_PARTICIPANT_IDX],
+            when=lambda data, w, m: (
+                data['meta'][LAST_COMPLETED_PARTICIPANT_IDX] >
+                data['meta'][CURRENT_PARTICIPANT_IDX]
+            ),
         ),
         MessageInput(handle_amount),
         state=ManageExpense.parts_amounts,
