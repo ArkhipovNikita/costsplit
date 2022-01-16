@@ -149,20 +149,14 @@ async def handle_amount(
         await manager.switch_to(ManageExpense.base)
 
 
-async def set_previous_participant(
-        call: CallbackQuery,
-        button: Button,
-        manager: DialogManager,
-):
+async def set_previous_participant(call: CallbackQuery, button: Button, manager: DialogManager):
     """Set `CURRENT_PARTICIPANT_IDX` to previous part participant."""
-    context = manager.current_context()
-    context.widget_data[AMOUNTS_WIDGET_ID][CURRENT_PARTICIPANT_IDX] -= 1
+    manager.current_context().widget_data[AMOUNTS_WIDGET_ID][CURRENT_PARTICIPANT_IDX] -= 1
 
 
 async def set_next_participant(call: CallbackQuery, button: Button, manager: DialogManager):
     """Set `CURRENT_PARTICIPANT_IDX` to next part participant."""
-    context = manager.current_context()
-    context.widget_data[AMOUNTS_WIDGET_ID][CURRENT_PARTICIPANT_IDX] += 1
+    manager.current_context().widget_data[AMOUNTS_WIDGET_ID][CURRENT_PARTICIPANT_IDX] += 1
 
 
 parts_windows = [
