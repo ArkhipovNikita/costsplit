@@ -150,12 +150,12 @@ async def handle_amount(
 
 
 async def set_previous_participant(call: CallbackQuery, button: Button, manager: DialogManager):
-    """Set `CURRENT_PARTICIPANT_IDX` to previous part participant."""
+    """Set `CURRENT_PARTICIPANT_IDX` to previous participant."""
     manager.current_context().widget_data[AMOUNTS_WIDGET_ID][CURRENT_PARTICIPANT_IDX] -= 1
 
 
 async def set_next_participant(call: CallbackQuery, button: Button, manager: DialogManager):
-    """Set `CURRENT_PARTICIPANT_IDX` to next part participant."""
+    """Set `CURRENT_PARTICIPANT_IDX` to next participant."""
     manager.current_context().widget_data[AMOUNTS_WIDGET_ID][CURRENT_PARTICIPANT_IDX] += 1
 
 
