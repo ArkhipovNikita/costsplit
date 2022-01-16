@@ -28,12 +28,12 @@ LAST_COMPLETED_PARTICIPANT_IDX = 'last_completed_participant_idx'
 
 @inject
 async def get_trip_participants_data(
-        dialog_manager: DialogManager,
+        manager: DialogManager,
         participant_service: ParticipantService = Provide[Container.participant_service],
         **kwargs,
 ):
     """Get current trip participants."""
-    context = dialog_manager.current_context()
+    context = manager.current_context()
     current_trip_id = context.start_data[CURRENT_TRIP_ID]
 
     participants = await participant_service.get_trip_participants(current_trip_id)
@@ -71,9 +71,9 @@ async def init_amounts_data(
     }
 
 
-async def get_amounts_data(dialog_manager: DialogManager, **kwargs):
+async def get_amounts_data(manager: DialogManager, **kwargs):
     """Get data about participants amounts."""
-    context = dialog_manager.current_context()
+    context = manager.current_context()
     amounts_data = context.widget_data.get(AMOUNTS_WIDGET_ID)
 
     if not amounts_data:
@@ -100,11 +100,11 @@ async def get_amounts_data(dialog_manager: DialogManager, **kwargs):
 @inject
 @transactional
 async def update_expense_parts(
-        dialog_manager: DialogManager,
+        manager: DialogManager,
         expense_service: ExpenseService = Provide[Container.expense_service],
 ):
     """Update current expense `parts` field."""
-    context = dialog_manager.current_context()
+    context = manager.current_context()
     current_expense_id = context.start_data[CURRENT_EXPENSE_ID]
     amounts_data = context.widget_data[AMOUNTS_WIDGET_ID]
 
@@ -123,12 +123,12 @@ async def update_expense_parts(
 async def handle_amount(
         message: Message,
         dialog: Dialog,
-        dialog_manager: DialogManager,
+        manager: DialogManager,
 ):
     """Validate input amount and save it."""
     expense_in = ExpenseManualIn(part_amount=message.text)
 
-    context = dialog_manager.current_context()
+    context = manager.current_context()
     amounts_data = context.widget_data[AMOUNTS_WIDGET_ID]
 
     participants = amounts_data[PARTICIPANTS]
@@ -145,8 +145,8 @@ async def handle_amount(
     amounts_data[CURRENT_PARTICIPANT_IDX] = current_participant_idx
 
     if len(participants) == current_participant_idx:
-        await update_expense_parts(dialog_manager)
-        await dialog_manager.switch_to(ManageExpense.base)
+        await update_expense_parts(manager)
+        await manager.switch_to(ManageExpense.base)
 
 
 async def set_previous_participant(
