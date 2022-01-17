@@ -4,9 +4,16 @@ from sqlalchemy import and_, delete, select
 
 from src.models import Participant
 from src.repositories import BaseRepository
+from src.schemes.participant import ParticipantCreateScheme, ParticipantUpdateScheme
 
 
-class ParticipantRepository(BaseRepository[Participant]):
+class ParticipantRepository(
+    BaseRepository[
+        Participant,
+        ParticipantCreateScheme,
+        ParticipantUpdateScheme,
+    ],
+):
     async def get_trip_participants(self, trip_id: int) -> List[Participant]:
         """Get participants of a trip."""
         query = select(Participant).filter_by(trip_id=trip_id)

@@ -7,7 +7,7 @@ from dependency_injector.wiring import Provide, inject
 from src.config.injector import Container
 from src.handlers.consts import CURRENT_EXPENSE_ID
 from src.handlers.expense.common import ManageExpense
-from src.schemes.expense import ExpenseManualIn
+from src.schemes.expense import ExpenseUpdateScheme
 from src.services import ExpenseService
 from src.utils.db import transactional
 
@@ -21,10 +21,10 @@ async def update_description(
         expense_service: ExpenseService = Provide[Container.expense_service],
 ):
     """Validate entered description and update current expense with its value."""
-    expense_in = ExpenseManualIn(description=message.text)
+    expense_in = ExpenseUpdateScheme(description=message.text)
 
     current_expense_id = dialog_manager.current_context().start_data[CURRENT_EXPENSE_ID]
-    await expense_service.update_by_id(current_expense_id, description=expense_in.description)
+    await expense_service.update_by_id(current_expense_id, expense_in)
 
     await dialog_manager.dialog().switch_to(ManageExpense.base)
 

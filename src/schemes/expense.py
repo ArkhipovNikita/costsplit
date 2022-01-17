@@ -1,18 +1,41 @@
-from typing import Optional
+from datetime import date
+from typing import List, Optional
 
-from pydantic import BaseModel, Field, PositiveFloat
+from pydantic import Field, PositiveFloat
+
+from src.schemes.base import BaseScheme, DBBaseScheme
 
 
-class ExpenseManualIn(BaseModel):
-    """Model to validate manual entered fields."""
+class PartScheme(BaseScheme):
+    participant_id: int
+    amount: PositiveFloat
 
+
+class ExpenseBaseScheme(BaseScheme):
+    description: Optional[str] = Field(max_length=255, default='')
+    parts: Optional[List[PartScheme]] = Field(default=[])
+    created_at: Optional[date]
+
+
+class ExpenseCreateScheme(ExpenseBaseScheme):
+    trip_id: int
+    payer_id: int
+    amount: PositiveFloat
+
+
+class ExpenseUpdateScheme(ExpenseBaseScheme):
+    payer_id: Optional[int]
     amount: Optional[PositiveFloat]
-    description: Optional[str] = Field(max_length=255)
-    part_amount: Optional[PositiveFloat]
 
-    class Config:
-        error_msg_templates = {
-            'value_error.number.not_gt': 'Число должно быть больше 0',
-            'type_error.float': 'Неверный формат',
-            'value_error.any_str.max_length': 'Максимальное число символов {limit_value}'
-        }
+
+class ExpenseDBBaseScheme(DBBaseScheme):
+    description: str
+    parts: List[PartScheme]
+
+
+class ExpenseScheme(ExpenseDBBaseScheme):
+    pass
+
+
+class ExpenseBScheme(ExpenseDBBaseScheme):
+    pass

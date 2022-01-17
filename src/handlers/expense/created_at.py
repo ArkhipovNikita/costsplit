@@ -12,6 +12,7 @@ from src.config import app_settings
 from src.config.injector import Container
 from src.handlers.consts import CURRENT_EXPENSE_ID
 from src.handlers.expense.common import ManageExpense
+from src.schemes.expense import ExpenseUpdateScheme
 from src.services import ExpenseService
 from src.utils.db import transactional
 
@@ -50,7 +51,8 @@ async def update_created_at(
     context = dialog_manager.current_context()
     current_expense_id = context.start_data.get(CURRENT_EXPENSE_ID)
 
-    await expense_service.update_by_id(current_expense_id, created_at=selected_date)
+    expense_in = ExpenseUpdateScheme(created_at=selected_date)
+    await expense_service.update_by_id(current_expense_id, expense_in)
     await dialog_manager.switch_to(ManageExpense.base)
 
 

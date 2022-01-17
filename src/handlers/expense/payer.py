@@ -10,6 +10,7 @@ from dependency_injector.wiring import Provide, inject
 from src.config.injector import Container
 from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
+from src.schemes.expense import ExpenseUpdateScheme
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
 from src.widgets.keyboards import ListUserURL, Zipped
@@ -56,7 +57,8 @@ async def update_payer(
     current_expense_id = dialog_manager.current_context().start_data[CURRENT_EXPENSE_ID]
 
     participant = await participant_service.get_by(user_id=item_id)
-    await expense_service.update_by_id(current_expense_id, payer_id=participant.id)
+    expense_in = ExpenseUpdateScheme(payer_id=participant.id)
+    await expense_service.update_by_id(current_expense_id, expense_in)
 
     await dialog_manager.dialog().switch_to(ManageExpense.base)
 

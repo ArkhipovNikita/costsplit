@@ -1,5 +1,3 @@
-from datetime import date
-
 import sqlalchemy as sa
 
 from src.models.base import BaseTable
@@ -11,6 +9,6 @@ class Trip(BaseTable):
     )
 
     chat_id = sa.Column(sa.Integer, nullable=False)
-    name = sa.Column(sa.String(100), nullable=False, default='')
+    name = sa.Column(sa.String(100), nullable=False)
     is_active = sa.Column(sa.Boolean, nullable=False)
-    created_at = sa.Column(sa.Date, nullable=False, default=date.today)
+    created_at = sa.Column(sa.Date, nullable=False)

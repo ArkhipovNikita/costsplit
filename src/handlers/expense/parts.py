@@ -12,7 +12,7 @@ from src import formatters as fmt
 from src.config.injector import Container
 from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
-from src.schemes.expense import ExpenseManualIn
+from src.schemes.expense import ExpenseUpdateScheme, PartScheme
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
 from src.widgets.keyboards import ListUserURL, Zipped
@@ -57,6 +57,7 @@ async def init_amounts_data(
 
     participants = [
         {
+            'id': p.id,
             'user_id': p.user_id,
             'first_name': p.first_name,
             'amount': None,
@@ -111,13 +112,14 @@ async def update_expense_parts(
     participants = amounts_data[PARTICIPANTS]
     amounts = [
         {
-            'participant_user_id': p['user_id'],
+            'participant_id': p['id'],
             'amount': p['amount'],
         }
         for p in participants
     ]
+    expense_in = ExpenseUpdateScheme(parts=amounts)
 
-    await expense_service.update_by_id(current_expense_id, parts=amounts)
+    await expense_service.update_by_id(current_expense_id, expense_in)
 
 
 async def handle_amount(
@@ -126,8 +128,6 @@ async def handle_amount(
         dialog_manager: DialogManager,
 ):
     """Validate input amount and save it."""
-    expense_in = ExpenseManualIn(part_amount=message.text)
-
     context = dialog_manager.current_context()
     amounts_data = context.widget_data[AMOUNTS_WIDGET_ID]
 
@@ -140,7 +140,8 @@ async def handle_amount(
         current_participant_idx,
     )
 
-    current_participant_data['amount'] = expense_in.part_amount
+    part = PartScheme(participant_id=current_participant_data['id'], amount=message.text)
+    current_participant_data['amount'] = part.amount
     current_participant_idx += 1
 
     amounts_data[CURRENT_PARTICIPANT_IDX] = current_participant_idx

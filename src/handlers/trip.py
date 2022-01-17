@@ -9,7 +9,7 @@ from dependency_injector.wiring import Provide, inject
 
 from src.config.injector import Container
 from src.loader import dp
-from src.models import Trip
+from src.schemes.trip import TripCreateScheme, TripUpdateScheme
 from src.services import TripService
 from src.utils.db import transactional
 
@@ -35,8 +35,8 @@ async def start_trip(
     else:
         trip_already_exists = False
 
-        current_trip = Trip(chat_id=message.chat.id, is_active=True)
-        current_trip = await trip_service.create(current_trip)
+        trip_in = TripCreateScheme(chat_id=message.chat.id, is_active=True)
+        current_trip = await trip_service.create(trip_in)
 
     await dialog_manager.start(
         ManageTrip.base,
@@ -61,7 +61,8 @@ async def update_trip_name(
         return
 
     current_trip_id = dialog_manager.current_context().start_data['current_trip_id']
-    await trip_service.update_by_id(current_trip_id, name=new_trip_name)
+    trip_in = TripUpdateScheme(name=new_trip_name)
+    await trip_service.update_by_id(current_trip_id, trip_in)
 
     await dialog_manager.dialog().switch_to(ManageTrip.base)
 

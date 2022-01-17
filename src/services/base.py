@@ -1,14 +1,26 @@
 from abc import ABC
 from typing import Generic, List, Optional, TypeVar
 
-from src.models import BaseTable
 from src.repositories import BaseRepository
+from src.repositories.types import (
+    CreateSchemaType,
+    ModelType,
+    UpdateIn,
+    UpdateSchemaType,
+)
 
-ModelType = TypeVar('ModelType', bound=BaseTable)
 ModelRepositoryType = TypeVar('ModelRepositoryType', bound=BaseRepository)
 
 
-class BaseService(Generic[ModelType, ModelRepositoryType], ABC):
+class BaseService(
+    Generic[
+        ModelType,
+        ModelRepositoryType,
+        CreateSchemaType,
+        UpdateSchemaType,
+    ],
+    ABC,
+):
     def __init__(self, model_repository: ModelRepositoryType):
         self.__model_repository = model_repository
 
@@ -20,18 +32,18 @@ class BaseService(Generic[ModelType, ModelRepositoryType], ABC):
         """Check an object existing by any fields."""
         return await self.__model_repository.exists_by(**kwargs)
 
-    async def create(self, obj: ModelType) -> ModelType:
+    async def create(self, obj_in: CreateSchemaType) -> ModelType:
         """Create an object."""
-        return await self.__model_repository.create(obj)
+        return await self.__model_repository.create(obj_in)
 
-    async def create_many(self, objs: List[ModelType]) -> List[ModelType]:
+    async def create_many(self, objs_in: List[CreateSchemaType]) -> List[ModelType]:
         """Create objects."""
-        return await self.__model_repository.create_many(objs)
+        return await self.__model_repository.create_many(objs_in)
 
-    async def update(self, obj: ModelType, **kwargs) -> ModelType:
+    async def update(self, obj: ModelType, obj_in: UpdateIn) -> ModelType:
         """Update object and returned it with refreshed fields."""
-        return await self.__model_repository.update(obj, **kwargs)
+        return await self.__model_repository.update(obj, obj_in)
 
-    async def update_by_id(self, obj_id: int, **kwargs) -> ModelType:
+    async def update_by_id(self, obj_id: int, obj_in: UpdateIn) -> ModelType:
         """Update object by id and returned it."""
-        return await self.__model_repository.update_by_id(obj_id, **kwargs)
+        return await self.__model_repository.update_by_id(obj_id, obj_in)

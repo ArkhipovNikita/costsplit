@@ -13,6 +13,6 @@ class Expense(BaseTable):
         nullable=False,
     )
     amount = sa.Column(sa.Float, nullable=False)
-    description = sa.Column(sa.String(255), nullable=False, default='')
-    parts = sa.Column(JSONB, nullable=False, default={})
+    description = sa.Column(sa.String(255), nullable=False)
+    parts = sa.Column(JSONB, nullable=False)
     created_at = sa.Column(sa.Date)

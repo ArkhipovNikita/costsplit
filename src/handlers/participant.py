@@ -13,7 +13,7 @@ from pyrogram.methods.chats.get_chat_members import Filters
 from src.config.injector import Container
 from src.config.pyrogram import telegram_client
 from src.loader import dp
-from src.models import Participant
+from src.schemes.participant import ParticipantCreateScheme
 from src.services import TripService
 from src.services.participant import ParticipantService
 from src.utils.db import transactional
@@ -99,7 +99,11 @@ async def manage_participants_finish(
 
     new_participants = await telegram_client.get_users(participants_to_add)
     new_participants = [
-        Participant(trip_id=current_trip_id, user_id=user.id, first_name=user.first_name)
+        ParticipantCreateScheme(
+            trip_id=current_trip_id,
+            user_id=user.id,
+            first_name=user.first_name,
+        )
         for user in new_participants
     ]
 

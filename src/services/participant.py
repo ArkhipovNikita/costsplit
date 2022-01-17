@@ -2,10 +2,18 @@ from typing import List
 
 from src.models import Participant
 from src.repositories import ParticipantRepository
+from src.schemes.participant import ParticipantCreateScheme, ParticipantUpdateScheme
 from src.services.base import BaseService
 
 
-class ParticipantService(BaseService[Participant, ParticipantRepository]):
+class ParticipantService(
+    BaseService[
+        Participant,
+        ParticipantRepository,
+        ParticipantCreateScheme,
+        ParticipantUpdateScheme,
+    ],
+):
     def __init__(self, participant_repository: ParticipantRepository):
         super().__init__(participant_repository)
         self.participant_repository = participant_repository

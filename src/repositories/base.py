@@ -1,15 +1,20 @@
 from abc import ABC
-from typing import Generic, List, Optional, TypeVar, get_args
+from typing import Generic, List, Optional, get_args
 
 from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.base import BaseTable
+from src.repositories.types import (
+    CreateSchemaType,
+    ModelType,
+    UpdateIn,
+    UpdateSchemaType,
+)
+from src.repositories.unpackers import create_scheme_to_attrs, update_scheme_to_attrs
+from src.utils.attrs import set_attrs
 
-ModelType = TypeVar('ModelType', bound=BaseTable)
 
-
-class BaseRepository(Generic[ModelType], ABC):
+class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType], ABC):
     def __init__(self, session: AsyncSession):
         self._session: AsyncSession = session
 
@@ -35,17 +40,23 @@ class BaseRepository(Generic[ModelType], ABC):
 
         return res
 
-    async def create(self, obj: ModelType) -> ModelType:
+    async def create(self, obj_in: CreateSchemaType) -> ModelType:
         """Create an object."""
 
+        obj = self.__model(**create_scheme_to_attrs(obj_in))
         self._session.add(obj)
         await self._session.flush()
         await self._session.refresh(obj)
 
         return obj
 
-    async def create_many(self, objs: List[ModelType]) -> List[ModelType]:
+    async def create_many(self, objs_in: List[CreateSchemaType]) -> List[ModelType]:
         """Create objects."""
+        if not objs_in:
+            return []
+
+        objs = [self.__model(**create_scheme_to_attrs(obj_in)) for obj_in in objs_in]
+
         self._session.add_all(objs)
         await self._session.flush()
 
@@ -54,24 +65,24 @@ class BaseRepository(Generic[ModelType], ABC):
 
         return objs
 
-    async def update(self, obj: ModelType, **kwargs) -> ModelType:
+    async def update(self, obj: ModelType, obj_in: UpdateIn) -> ModelType:
         """Update object and returned it with refreshed fields."""
-
-        for k, v in kwargs.items():
-            setattr(obj, k, v)
+        new_attrs = obj_in if isinstance(obj_in, dict) else update_scheme_to_attrs(obj_in)
+        set_attrs(obj, **new_attrs)
 
         self._session.add(obj)
         await self._session.flush()
 
         return obj
 
-    async def update_by_id(self, obj_id: int, **kwargs) -> ModelType:
+    async def update_by_id(self, obj_id: int, obj_in: UpdateIn) -> ModelType:
         """Update object by id and returned it."""
+        new_attrs = obj_in if isinstance(obj_in, dict) else update_scheme_to_attrs(obj_in)
 
         query = (
             update(self.__model)
             .where(self.__model.id == obj_id)
-            .values(**kwargs)
+            .values(**new_attrs)
             .returning(self.__model)
         )
 

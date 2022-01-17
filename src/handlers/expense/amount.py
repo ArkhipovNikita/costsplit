@@ -7,8 +7,7 @@ from dependency_injector.wiring import Provide, inject
 from src.config.injector import Container
 from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
-from src.models import Expense
-from src.schemes.expense import ExpenseManualIn
+from src.schemes.expense import ExpenseCreateScheme, ExpenseUpdateScheme
 from src.services import ExpenseService, ParticipantService
 from src.utils.db import transactional
 
@@ -23,13 +22,13 @@ async def update_amount(
         participant_service: ParticipantService = Provide[Container.participant_service],
 ):
     """Validate entered amount and update current expense with its value."""
-    expense_in = ExpenseManualIn(amount=message.text)
 
     context = dialog_manager.current_context()
     current_expense_id = context.start_data.get(CURRENT_EXPENSE_ID)
 
     if current_expense_id:
-        await expense_service.update_by_id(current_expense_id, amount=expense_in.amount)
+        expense_in = ExpenseUpdateScheme(amount=message.text)
+        await expense_service.update_by_id(current_expense_id, expense_in)
     else:
         current_trip_id = context.start_data[CURRENT_TRIP_ID]
         participant = await participant_service.get_by(
@@ -37,12 +36,12 @@ async def update_amount(
             user_id=message.from_user.id,
         )
 
-        expense = Expense(
+        expense_in = ExpenseCreateScheme(
             trip_id=current_trip_id,
             payer_id=participant.id,
-            amount=expense_in.amount,
+            amount=message.text,
         )
-        await expense_service.create(expense)
+        expense = await expense_service.create(expense_in)
 
         context.start_data[CURRENT_EXPENSE_ID] = expense.id
 
