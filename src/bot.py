@@ -2,11 +2,11 @@ from aiogram import Dispatcher
 from aiogram.utils import executor
 from aiogram_dialog import DialogRegistry
 
+from src.application.handlers.expense import expense_dialog
+from src.application.handlers.participant import manage_participants_dialog
+from src.application.handlers.trip import manage_trip_dialog
 from src.core.injector import init_container
 from src.core.pyrogram import close_telegram_client, init_telegram_client
-from src.handlers.expense import expense_dialog
-from src.handlers.participant import manage_participants_dialog
-from src.handlers.trip import manage_trip_dialog
 from src.loader import dp
 
 

@@ -1,8 +1,12 @@
 from dependency_injector import containers, providers
 
 from src.core.db.session import async_scoped_session_factory
-from src.repositories import ExpenseRepository, ParticipantRepository, TripRepository
-from src.services import ExpenseService, ParticipantService, TripService
+from src.domain.repositories import (
+    ExpenseRepository,
+    ParticipantRepository,
+    TripRepository,
+)
+from src.domain.services import ExpenseService, ParticipantService, TripService
 
 
 class Container(containers.DeclarativeContainer):
@@ -23,5 +27,5 @@ class Container(containers.DeclarativeContainer):
 def init_container() -> Container:
     container = Container()
     container.init_resources()
-    container.wire(packages=['src.handlers'])
+    container.wire(packages=['src.application.handlers'])
     return container

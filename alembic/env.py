@@ -8,7 +8,7 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from src.core.settings import postgres_settings
-from src.models import metadata
+from src.domain.models import metadata
 
 config = context.config
 config.set_main_option("sqlalchemy.url", postgres_settings.sync_url)
