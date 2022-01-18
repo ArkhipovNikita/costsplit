@@ -2,8 +2,8 @@ from aiogram import Dispatcher
 from aiogram.utils import executor
 from aiogram_dialog import DialogRegistry
 
-from src.config.injector import init_container
-from src.config.pyrogram import close_telegram_client, init_telegram_client
+from src.core.injector import init_container
+from src.core.pyrogram import close_telegram_client, init_telegram_client
 from src.handlers.expense import expense_dialog
 from src.handlers.participant import manage_participants_dialog
 from src.handlers.trip import manage_trip_dialog

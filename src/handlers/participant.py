@@ -10,13 +10,13 @@ from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 from pyrogram.methods.chats.get_chat_members import Filters
 
-from src.config.injector import Container
-from src.config.pyrogram import telegram_client
+from src.core.db.decorators import transactional
+from src.core.injector import Container
+from src.core.pyrogram import telegram_client
 from src.loader import dp
 from src.schemes.participant import ParticipantCreateScheme
 from src.services import TripService
 from src.services.participant import ParticipantService
-from src.utils.db import transactional
 from src.widgets.keyboards import ListUserURL, Zipped
 
 

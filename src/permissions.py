@@ -2,7 +2,7 @@ from aiogram.types import Message
 from aiogram_dialog import DialogManager
 from dependency_injector.wiring import Provide, inject
 
-from src.config.injector import Container
+from src.core.injector import Container
 from src.services import TripService
 
 

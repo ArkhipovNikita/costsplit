@@ -1,6 +1,6 @@
 from pyrogram import Client
 
-from src.config import bot_settings
+from src.core.settings import bot_settings
 
 telegram_client = Client(
     session_name='pyrogram',

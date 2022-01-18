@@ -7,12 +7,12 @@ from aiogram_dialog.widgets.kbd import Column, Radio
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
-from src.config.injector import Container
+from src.core.db.decorators import transactional
+from src.core.injector import Container
 from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.schemes.expense import ExpenseUpdateScheme
 from src.services import ExpenseService, ParticipantService
-from src.utils.db import transactional
 from src.widgets.keyboards import ListUserURL, Zipped
 
 PAYER_CHOOSING_WIDGET_ID = 'expense_payer'

@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from src.db.session import async_scoped_session_factory
+from src.core.db.session import async_scoped_session_factory
 from src.repositories import ExpenseRepository, ParticipantRepository, TripRepository
 from src.services import ExpenseService, ParticipantService, TripService
 

@@ -7,11 +7,11 @@ from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.text import Case, Const, Format
 from dependency_injector.wiring import Provide, inject
 
-from src.config.injector import Container
+from src.core.db.decorators import transactional
+from src.core.injector import Container
 from src.loader import dp
 from src.schemes.trip import TripCreateScheme, TripUpdateScheme
 from src.services import TripService
-from src.utils.db import transactional
 
 
 class ManageTrip(StatesGroup):

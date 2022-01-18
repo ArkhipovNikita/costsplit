@@ -4,13 +4,13 @@ from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
-from src.config import app_settings
-from src.config.injector import Container
+from src.core.injector import Container
+from src.core.settings import app_settings
 from src.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.handlers.expense.common import ManageExpense
 from src.loader import dp
+from src.permissions import ensure_trip_exists
 from src.services import ExpenseService, ParticipantService, TripService
-from src.utils.handlers import ensure_trip_exists
 
 
 @dp.message_handler(commands=['expense'])
