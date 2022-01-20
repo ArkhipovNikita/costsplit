@@ -1,5 +1,4 @@
 from aiogram import types
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.widgets.input import MessageInput
@@ -7,16 +6,12 @@ from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.text import Case, Const, Format
 from dependency_injector.wiring import Provide, inject
 
+from src.app.states import ManageTrip
 from src.core.db.decorators import transactional
 from src.core.injector import Container
 from src.domain.schemes.trip import TripCreateScheme, TripUpdateScheme
 from src.domain.services import TripService
 from src.loader import dp
-
-
-class ManageTrip(StatesGroup):
-    base = State()
-    name = State()
 
 
 @dp.message_handler(commands=['start_trip'])

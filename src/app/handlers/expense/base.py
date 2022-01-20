@@ -4,9 +4,9 @@ from aiogram_dialog.widgets.kbd import SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
-from src.app.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
-from src.app.handlers.expense.common import ManageExpense
+from src.app.keys import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
 from src.app.permissions import ensure_trip_exists
+from src.app.states import ManageExpense
 from src.core.injector import Container
 from src.core.settings import app_settings
 from src.domain.services import ExpenseService, ParticipantService, TripService

@@ -1,9 +1,16 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
-class ManageExpense(StatesGroup):
-    """States group to manage expense."""
+class ManageTrip(StatesGroup):
+    base = State()
+    name = State()
 
+
+class ManageParticipant(StatesGroup):
+    choosing = State()
+
+
+class ManageExpense(StatesGroup):
     base = State()
     amount = State()
     payer = State()

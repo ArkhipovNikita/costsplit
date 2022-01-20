@@ -1,7 +1,6 @@
 import operator
 from typing import Any
 
-from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import Dialog, DialogManager, StartMode, Window
 from aiogram_dialog.utils import get_chat
@@ -10,6 +9,7 @@ from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 from pyrogram.methods.chats.get_chat_members import Filters
 
+from src.app.states import ManageParticipant
 from src.app.widgets.keyboards import ListUserURL, Zipped
 from src.core.db.decorators import transactional
 from src.core.injector import Container
@@ -18,10 +18,6 @@ from src.domain.schemes.participant import ParticipantCreateScheme
 from src.domain.services import TripService
 from src.domain.services.participant import ParticipantService
 from src.loader import dp
-
-
-class ManageParticipant(StatesGroup):
-    choosing = State()
 
 
 async def get_chat_members(dialog_manager: DialogManager, **kwargs):

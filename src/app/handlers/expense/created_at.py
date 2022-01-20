@@ -8,8 +8,8 @@ from aiogram_dialog.widgets.kbd import Calendar, Row, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 
-from src.app.handlers.consts import CURRENT_EXPENSE_ID
-from src.app.handlers.expense.common import ManageExpense
+from src.app.keys import CURRENT_EXPENSE_ID
+from src.app.states import ManageExpense
 from src.core.db.decorators import transactional
 from src.core.injector import Container
 from src.core.settings import app_settings

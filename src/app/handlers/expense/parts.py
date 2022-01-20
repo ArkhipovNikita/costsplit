@@ -9,8 +9,8 @@ from aiogram_dialog.widgets.text import Const, Format, Multi
 from dependency_injector.wiring import Provide, inject
 
 from src.app import formatters as fmt
-from src.app.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
-from src.app.handlers.expense.common import ManageExpense
+from src.app.keys import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
+from src.app.states import ManageExpense
 from src.app.widgets.keyboards import ListUserURL, Zipped
 from src.app.widgets.texts import Callable
 from src.core.db.decorators import transactional
