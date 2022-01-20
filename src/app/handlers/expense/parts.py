@@ -8,11 +8,11 @@ from aiogram_dialog.widgets.kbd import Button, Column, Multiselect, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format, Multi
 from dependency_injector.wiring import Provide, inject
 
-from src.application import formatters as fmt
-from src.application.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
-from src.application.handlers.expense.common import ManageExpense
-from src.application.widgets.keyboards import ListUserURL, Zipped
-from src.application.widgets.texts import Callable
+from src.app import formatters as fmt
+from src.app.handlers.consts import CURRENT_EXPENSE_ID, CURRENT_TRIP_ID
+from src.app.handlers.expense.common import ManageExpense
+from src.app.widgets.keyboards import ListUserURL, Zipped
+from src.app.widgets.texts import Callable
 from src.core.db.decorators import transactional
 from src.core.injector import Container
 from src.domain.schemes.expense import ExpenseUpdateScheme, PartScheme

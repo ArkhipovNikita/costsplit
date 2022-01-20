@@ -11,8 +11,8 @@ from aiogram_dialog.widgets.kbd.select import ItemIdGetter, get_identity
 from aiogram_dialog.widgets.text import Format, Text
 from aiogram_dialog.widgets.when import WhenCondition
 
-from src.application import formatters as fmt
-from src.application.widgets.texts import Callable
+from src.app import formatters as fmt
+from src.app.widgets.texts import Callable
 
 
 class Zipped(Group):

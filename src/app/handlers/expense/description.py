@@ -4,8 +4,8 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.text import Const
 from dependency_injector.wiring import Provide, inject
 
-from src.application.handlers.consts import CURRENT_EXPENSE_ID
-from src.application.handlers.expense.common import ManageExpense
+from src.app.handlers.consts import CURRENT_EXPENSE_ID
+from src.app.handlers.expense.common import ManageExpense
 from src.core.db.decorators import transactional
 from src.core.injector import Container
 from src.domain.schemes.expense import ExpenseUpdateScheme

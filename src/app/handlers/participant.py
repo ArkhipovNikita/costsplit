@@ -10,7 +10,7 @@ from aiogram_dialog.widgets.text import Const, Format
 from dependency_injector.wiring import Provide, inject
 from pyrogram.methods.chats.get_chat_members import Filters
 
-from src.application.widgets.keyboards import ListUserURL, Zipped
+from src.app.widgets.keyboards import ListUserURL, Zipped
 from src.core.db.decorators import transactional
 from src.core.injector import Container
 from src.core.pyrogram import telegram_client

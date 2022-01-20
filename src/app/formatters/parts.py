@@ -2,7 +2,7 @@ from typing import Dict
 
 from aiogram.utils import markdown as fmt
 
-from src.application.formatters.common import telegram_user_hmention
+from src.app.formatters.common import telegram_user_hmention
 
 
 def amount_enter(participant: Dict, **kwargs) -> str:

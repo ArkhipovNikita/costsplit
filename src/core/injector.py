@@ -27,5 +27,5 @@ class Container(containers.DeclarativeContainer):
 def init_container() -> Container:
     container = Container()
     container.init_resources()
-    container.wire(packages=['src.application.handlers'])
+    container.wire(packages=['src.app.handlers'])
     return container
