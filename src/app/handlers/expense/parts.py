@@ -15,8 +15,8 @@ from src.app.widgets.keyboards import ListUserURL, Zipped
 from src.app.widgets.texts import Callable
 from src.core.db.decorators import transactional
 from src.core.injector import Container
-from src.domain.schemes.expense import ExpenseUpdateScheme, PartScheme
-from src.domain.services import ExpenseService, ParticipantService
+from src.domain.schemes.part import PartCreateScheme, PartUpdateScheme
+from src.domain.services import ParticipantService, PartService
 
 PARTICIPANTS_CHOOSING_WIDGET_ID = 'expense_parts_participants'
 AMOUNTS_WIDGET_ID = 'expense_parts_amounts'
@@ -102,7 +102,7 @@ async def get_amounts_data(dialog_manager: DialogManager, **kwargs):
 @transactional
 async def update_expense_parts(
         dialog_manager: DialogManager,
-        expense_service: ExpenseService = Provide[Container.expense_service],
+        part_service: PartService = Provide[Container.part_service],
 ):
     """Update current expense `parts` field."""
     context = dialog_manager.current_context()
@@ -110,16 +110,16 @@ async def update_expense_parts(
     amounts_data = context.widget_data[AMOUNTS_WIDGET_ID]
 
     participants = amounts_data[PARTICIPANTS]
-    amounts = [
-        {
-            'participant_id': p['id'],
-            'amount': p['amount'],
-        }
+    parts_in = [
+        PartCreateScheme(
+            expense_id=current_expense_id,
+            debtor_id=p['id'],
+            amount=p['amount'],
+        )
         for p in participants
     ]
-    expense_in = ExpenseUpdateScheme(parts=amounts)
 
-    await expense_service.update_by_id(current_expense_id, expense_in)
+    await part_service.create_many(parts_in)
 
 
 async def handle_amount(
@@ -140,7 +140,7 @@ async def handle_amount(
         current_participant_idx,
     )
 
-    part = PartScheme(participant_id=current_participant_data['id'], amount=message.text)
+    part = PartUpdateScheme(amount=message.text)
     current_participant_data['amount'] = part.amount
     current_participant_idx += 1
 

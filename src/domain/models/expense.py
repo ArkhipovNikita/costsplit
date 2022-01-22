@@ -1,5 +1,4 @@
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSONB
 
 from src.domain.models import BaseTable
 
@@ -14,5 +13,4 @@ class Expense(BaseTable):
     )
     amount = sa.Column(sa.Float, nullable=False)
     description = sa.Column(sa.String(255), nullable=False)
-    parts = sa.Column(JSONB, nullable=False)
     created_at = sa.Column(sa.Date)

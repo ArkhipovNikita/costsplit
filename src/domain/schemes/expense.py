@@ -1,19 +1,13 @@
 from datetime import date
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import Field, PositiveFloat
 
 from src.domain.schemes.base import BaseScheme, DBBaseScheme
 
 
-class PartScheme(BaseScheme):
-    participant_id: int
-    amount: PositiveFloat
-
-
 class ExpenseBaseScheme(BaseScheme):
     description: Optional[str] = Field(max_length=255, default='')
-    parts: Optional[List[PartScheme]] = Field(default=[])
     created_at: Optional[date]
 
 
@@ -30,7 +24,6 @@ class ExpenseUpdateScheme(ExpenseBaseScheme):
 
 class ExpenseDBBaseScheme(DBBaseScheme):
     description: str
-    parts: List[PartScheme]
 
 
 class ExpenseScheme(ExpenseDBBaseScheme):
