@@ -30,5 +30,5 @@ class ExpenseScheme(ExpenseDBBaseScheme):
     pass
 
 
-class ExpenseBScheme(ExpenseDBBaseScheme):
+class ExpenseDBScheme(ExpenseDBBaseScheme):
     pass

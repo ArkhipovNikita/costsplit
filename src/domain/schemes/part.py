@@ -29,5 +29,5 @@ class PartScheme(PartDBBaseScheme):
     pass
 
 
-class PartBScheme(PartDBBaseScheme):
+class PartDBScheme(PartDBBaseScheme):
     pass

@@ -27,5 +27,5 @@ class ParticipantScheme(ParticipantDBBaseScheme):
     pass
 
 
-class ParticipantBScheme(ParticipantDBBaseScheme):
+class ParticipantDBScheme(ParticipantDBBaseScheme):
     pass
