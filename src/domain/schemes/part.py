@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import PositiveFloat
 
 from src.domain.schemes.base import BaseScheme, DBBaseScheme
+from src.domain.schemes.participant import ParticipantDBScheme
 
 
 class PartBaseScheme(BaseScheme):
@@ -19,7 +20,7 @@ class PartUpdateScheme(PartBaseScheme):
     amount: Optional[PositiveFloat]
 
 
-class PartDBBaseScheme(DBBaseScheme):
+class PartDBBaseScheme(PartBaseScheme, DBBaseScheme):
     expense_id: int
     debtor_id: int
     amount: PositiveFloat
@@ -30,4 +31,4 @@ class PartScheme(PartDBBaseScheme):
 
 
 class PartDBScheme(PartDBBaseScheme):
-    pass
+    debtor: Optional[ParticipantDBScheme]

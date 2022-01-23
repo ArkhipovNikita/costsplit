@@ -1,9 +1,11 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import Field, PositiveFloat
 
 from src.domain.schemes.base import BaseScheme, DBBaseScheme
+from src.domain.schemes.part import PartDBScheme
+from src.domain.schemes.participant import ParticipantDBScheme
 
 
 class ExpenseBaseScheme(BaseScheme):
@@ -22,8 +24,10 @@ class ExpenseUpdateScheme(ExpenseBaseScheme):
     amount: Optional[PositiveFloat]
 
 
-class ExpenseDBBaseScheme(DBBaseScheme):
-    description: str
+class ExpenseDBBaseScheme(ExpenseBaseScheme, DBBaseScheme):
+    trip_id: int
+    payer_id: int
+    amount: PositiveFloat
 
 
 class ExpenseScheme(ExpenseDBBaseScheme):
@@ -31,4 +35,5 @@ class ExpenseScheme(ExpenseDBBaseScheme):
 
 
 class ExpenseDBScheme(ExpenseDBBaseScheme):
-    pass
+    payer: Optional[ParticipantDBScheme]
+    parts: Optional[List[PartDBScheme]]

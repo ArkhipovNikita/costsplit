@@ -17,7 +17,7 @@ class ParticipantUpdateScheme(ParticipantBaseScheme):
     first_name: Optional[str]
 
 
-class ParticipantDBBaseScheme(DBBaseScheme):
+class ParticipantDBBaseScheme(ParticipantBaseScheme, DBBaseScheme):
     trip_id: int
     user_id: int
     first_name: str
