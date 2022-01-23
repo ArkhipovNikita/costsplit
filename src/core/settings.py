@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseSettings
 
 
@@ -27,6 +29,16 @@ class PostgresSettings(BaseSettings):
         return f'{self.dialect}://{self._base_url}'
 
 
+class RedisSettings(BaseSettings):
+    host: str
+    port: int
+    db: Optional[int]
+    password: Optional[str]
+
+    class Config:
+        env_prefix = 'redis_'
+
+
 class BotSettings(BaseSettings):
     api_token: str
     api_id: int
@@ -44,5 +56,6 @@ class AppSettings(BaseSettings):
 
 
 postgres_settings = PostgresSettings()
+redis_settings = RedisSettings()
 bot_settings = BotSettings()
 app_settings = AppSettings()
