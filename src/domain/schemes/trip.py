@@ -22,7 +22,7 @@ class TripUpdateScheme(TripBaseScheme):
     name: Optional[str]
 
 
-class TripDBBaseScheme(DBBaseScheme):
+class TripDBBaseScheme(TripBaseScheme, DBBaseScheme):
     chat_id: int
     is_active: bool
     name: str

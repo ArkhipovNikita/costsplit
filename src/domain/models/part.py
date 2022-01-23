@@ -17,4 +17,5 @@ class Part(BaseTable):
     )
     amount = sa.Column(sa.Float, nullable=False)
 
-    expense = relationship('Expense', backref='parts')
+    expense = relationship('Expense', back_populates='parts')
+    debtor = relationship('Participant', back_populates='parts')

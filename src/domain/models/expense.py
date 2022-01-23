@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from src.domain.models import BaseTable
 
@@ -14,3 +15,6 @@ class Expense(BaseTable):
     amount = sa.Column(sa.Float, nullable=False)
     description = sa.Column(sa.String(255), nullable=False)
     created_at = sa.Column(sa.Date)
+
+    payer = relationship('Participant', back_populates='expenses')
+    parts = relationship('Part', back_populates='expense')
